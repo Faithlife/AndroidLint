@@ -9,9 +9,11 @@ class SingleApostropheDetectorTests : LintDetectorTest() {
 
     @Test
     fun testMidWordSingleApostropheDetected() {
-        lint().files(xml("res/values/strings.xml", "<string name=\"a_bad_string\">ASCII's punctuation</string>"))
+        lint().files(xml("res/values/strings.xml", "<string name=\"a_bad_string\">ASCII\'s punctuation</string>"))
             .run()
-            .expect("""res/values/strings.xml:1: Warning: https://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters [UseUnicodeApostrophe]
+            .expect("""res/values/strings.xml:1: Warning: Prefer unicode apostrophes.
+                |
+                |https://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters [UseUnicodeApostrophe]
                 |<string name="a_bad_string">ASCII's punctuation</string>
                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings""".trimMargin())
@@ -19,9 +21,11 @@ class SingleApostropheDetectorTests : LintDetectorTest() {
 
     @Test
     fun testEndWordSingleApostropheDetected() {
-        lint().files(xml("res/values/strings.xml", "<string name=\"a_bad_string\">ASCIIs' punctuation</string>"))
+        lint().files(xml("res/values/strings.xml", "<string name=\"a_bad_string\">ASCIIs\' punctuation</string>"))
             .run()
-            .expect("""res/values/strings.xml:1: Warning: https://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters [UseUnicodeApostrophe]
+            .expect("""res/values/strings.xml:1: Warning: Prefer unicode apostrophes.
+                |
+                |https://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters [UseUnicodeApostrophe]
                 |<string name="a_bad_string">ASCIIs' punctuation</string>
                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings""".trimMargin())

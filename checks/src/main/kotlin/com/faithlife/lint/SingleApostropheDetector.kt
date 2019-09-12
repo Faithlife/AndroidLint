@@ -1,18 +1,10 @@
 package com.faithlife.lint
 
 import com.android.resources.ResourceFolderType
-import com.android.tools.lint.detector.api.Category
-import com.android.tools.lint.detector.api.Detector
-import com.android.tools.lint.detector.api.Detector.XmlScanner
-import com.android.tools.lint.detector.api.Implementation
-import com.android.tools.lint.detector.api.Issue
-import com.android.tools.lint.detector.api.LintFix
-import com.android.tools.lint.detector.api.Scope
-import com.android.tools.lint.detector.api.Severity
-import com.android.tools.lint.detector.api.XmlContext
+import com.android.tools.lint.detector.api.*
 import org.w3c.dom.Element
 
-class SingleApostropheDetector : Detector(), XmlScanner {
+class SingleApostropheDetector : ResourceXmlDetector() {
 
     override fun appliesTo(folderType: ResourceFolderType) = folderType == ResourceFolderType.VALUES
 
@@ -30,7 +22,7 @@ class SingleApostropheDetector : Detector(), XmlScanner {
                 ISSUE,
                 element,
                 context.getLocation(element),
-                "https://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters",
+                "Prefer unicode apostrophes.\n\nhttps://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters",
                 fix
             )
         }

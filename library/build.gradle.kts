@@ -1,6 +1,9 @@
+import com.novoda.gradle.release.PublishExtension
+import java.util.Properties
+
 plugins {
     id("com.android.library")
-    `maven-publish`
+    id("com.novoda.bintray-release")
 }
 
 android {
@@ -22,23 +25,22 @@ repositories {
 }
 
 dependencies {
-    lintChecks(project(":checks"))
+    lintPublish(project(":checks"))
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("myGet") {
-            groupId = "com.faithlife.lint"
-            artifactId = "android-lint"
-            version = "0.1"
-            artifact("$buildDir/outputs/aar/library-release.aar")
-        }
-    }
+configure<PublishExtension> {
+    val properties = Properties()
+    properties.load(file("$rootDir/local.properties").inputStream())
 
-    repositories {
-        maven {
-            // change to point to your repo, e.g. http://my.org/repo
-            url = uri("$buildDir/repo")
-        }
-    }
+    bintrayUser = properties.getProperty("bintray.user")
+    bintrayKey = properties.getProperty("bintray.apiKey")
+    userOrg = "faithlife"
+    repoName = "maven"
+    groupId = "com.faithlife.lint"
+    artifactId = "android-lint"
+    publishVersion = Library.version
+    desc = "Android Lint checks to enforce Faithlife house rules"
+    website = "https://github.com/Faithlife/AndroidLint"
+
+    dryRun = false
 }

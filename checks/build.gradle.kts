@@ -21,12 +21,6 @@ kotlin {
         }
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_1_8.toString()
-        }
-    }
-
     tasks.withType<Test> {
         testLogging {
             exceptionFormat = TestExceptionFormat.FULL
@@ -47,6 +41,6 @@ dependencies {
 
 tasks.withType<Jar> {
     manifest.attributes(
-        mapOf("Lint-Registry-v2" to "com.faithlife.lint.checks.SampleIssueRegistry")
+        mapOf("Lint-Registry-v2" to "com.faithlife.lint.IssueRegistry")
     )
 }
