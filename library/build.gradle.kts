@@ -29,11 +29,14 @@ dependencies {
 }
 
 configure<PublishExtension> {
+    val propertiesFile = file("$rootDir/local.properties")
     val properties = Properties()
-    properties.load(file("$rootDir/local.properties").inputStream())
+    if (propertiesFile.exists()) {
+        properties.load(propertiesFile.inputStream())
+    }
 
-    bintrayUser = properties.getProperty("bintray.user")
-    bintrayKey = properties.getProperty("bintray.apiKey")
+    bintrayUser = properties.getProperty("bintray.user") ?: ""
+    bintrayKey = properties.getProperty("bintray.apiKey") ?: ""
     userOrg = "faithlife"
     repoName = "maven"
     groupId = "com.faithlife.lint"
