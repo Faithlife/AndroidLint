@@ -26,4 +26,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: library-release.aar
-        path: checks/build/libs/library-release.aar
+        path: library/build/outputs/aar/library-release.aar
