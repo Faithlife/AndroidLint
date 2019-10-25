@@ -1,0 +1,29 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up JDK 8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - name: test
+      run: ./gradlew test
+    - name: archive test results
+      uses: actions/upload-artifact@v1
+      with:
+        name: test results
+        path: checks/build/reports/tests/test/
+    - name: assemble
+      run: ./gradlew assembleRelease
+    - name: archive library-release.aar
+      uses: actions/upload-artifact@v1
+      with:
+        name: library-release.aar
+        path: checks/build/libs/library-release.aar
