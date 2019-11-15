@@ -15,14 +15,14 @@ via Maven:
 <dependency>
   <groupId>com.faithlife.lint</groupId>
   <artifactId>android-lint</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
 via Gradle:
 
 ```kotlin
-compileOnly("com.faithlife.lint:android-lint:1.0.0")
+compileOnly("com.faithlife.lint:android-lint:1.0.1")
 ```
 
 ## Build instructions
