@@ -14,7 +14,7 @@ class SingleApostropheDetector : ResourceXmlDetector() {
         if (SINGLE_APOSTROPHE_REGEX.containsMatchIn(element.firstChild.nodeValue)) {
             val fix = LintFix.create()
                 .replace()
-                .text("'")
+                .pattern("\\\\?'")
                 .with("’")
                 .build()
 
@@ -29,7 +29,7 @@ class SingleApostropheDetector : ResourceXmlDetector() {
     }
 
     companion object {
-        private val SINGLE_APOSTROPHE_REGEX = Regex("\\b[a-zA-Z0-9]+'[a-zA-Z0-9]*")
+        private val SINGLE_APOSTROPHE_REGEX = Regex("\\b[a-zA-Z0-9]+\\\\?'[a-zA-Z0-9]*")
 
         @Suppress("UnstableApiUsage")
         val ISSUE = Issue.create(
