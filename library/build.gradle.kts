@@ -1,9 +1,8 @@
-import com.novoda.gradle.release.PublishExtension
 import java.util.Properties
 
 plugins {
     id("com.android.library")
-    id("com.novoda.bintray-release")
+    `maven-publish`
 }
 
 android {
@@ -28,22 +27,34 @@ dependencies {
     lintPublish(project(":checks"))
 }
 
-configure<PublishExtension> {
-    val propertiesFile = file("$rootDir/local.properties")
-    val properties = Properties()
-    if (propertiesFile.exists()) {
-        properties.load(propertiesFile.inputStream())
+// Because the components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            create<MavenPublication>("release") {
+                groupId = "com.faithlife.lint"
+                artifactId = "android-lint"
+                version = Library.version
+
+                from(components["release"])
+            }
+        }
+
+        repositories {
+            maven {
+                val propertiesFile = file("$rootDir/local.properties")
+                val properties = Properties()
+                if (propertiesFile.exists()) {
+                    properties.load(propertiesFile.inputStream())
+                }
+                credentials {
+                    username = properties.getProperty("bintray.user") ?: ""
+                    password = properties.getProperty("bintray.apiKey") ?: ""
+                }
+                url = uri("https://api.bintray.com/maven/faithlife/maven/android-lint/;publish=1")
+            }
+        }
     }
-
-    bintrayUser = properties.getProperty("bintray.user") ?: ""
-    bintrayKey = properties.getProperty("bintray.apiKey") ?: ""
-    userOrg = "faithlife"
-    repoName = "maven"
-    groupId = "com.faithlife.lint"
-    artifactId = "android-lint"
-    publishVersion = Library.version
-    desc = "Android Lint checks to enforce Faithlife house rules"
-    website = "https://github.com/Faithlife/AndroidLint"
-
-    dryRun = false
 }
