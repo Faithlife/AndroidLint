@@ -1,0 +1,36 @@
+name: Publish
+
+on:
+    release:
+        types: [released]
+
+jobs:
+    publish:
+        name: Release build and publish
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v2
+
+            - name: Set up JDK 1.8
+              uses: actions/setup-java@v1
+              with:
+                  java-version: 1.8
+
+            - name: Create binary keyring
+              env:
+                  GPG_KEY_CONTENTS: ${{ secrets.SIGNING_KEY_SECRET }}
+                  SIGNING_KEY_RING_FILE: ${{ secrets.SIGNING_KEY_FILE_PATH }}
+              run: |
+                  git fetch --unshallow
+                  sudo bash -c "echo '$GPG_KEY_CONTENTS' | base64 -d > '$SIGNING_KEY_RING_FILE'"
+
+            - name: Publish to MavenCentral
+              run: ./gradlew --max-workers 1 --no-daemon publishReleasePublicationToSonatypeRepository closeAndReleaseRepository
+              env:
+                  ORG_GRADLE_PROJECT_signing.keyid: ${{ secrets.SIGNING_KEY_ID }}
+                  ORG_GRADLE_PROJECT_signing.password: ${{ secrets.SIGNING_KEY_PASSWORD }}
+                  ORG_GRADLE_PROJECT_signing.secretKeyRingFile: ${{ secrets.SIGNING_KEY_FILE_PATH }}
+                  ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.OSSRH_USERNAME }}
+                  ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.OSSRH_PASSWORD }}
+                  ORG_GRADLE_PROJECT_sonatypeProfileId: ${{ secrets.SONATYPE_PROFILE_ID }}

@@ -1,5 +1,5 @@
 object Library {
-    val version = "1.1.2"
+    const val version = "1.1.2"
 }
 
-val lintVersion = "26.6.1"
+const val lintVersion = "26.6.1"

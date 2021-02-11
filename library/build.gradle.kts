@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.js.inline.util.getSimpleName
 plugins {
     id("com.android.library")
     id("maven-publish")
-    signing
+    id("signing")
 }
 
 android {
