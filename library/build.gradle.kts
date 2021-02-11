@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.js.inline.util.getSimpleName
+
 plugins {
     id("com.android.library")
     id("maven-publish")
@@ -38,26 +40,50 @@ afterEvaluate {
                 version = Library.version
 
                 from(components["release"])
+
+                @Suppress("UnstableApiUsage")
+                pom {
+                    name.set("android-lint")
+                    description.set("A collection of lint checks for Android the enforce Faithlife house rules.")
+                    url.set("https://github.com/Faithlife/AndroidLint/")
+
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://github.com/Faithlife/AndroidLint/blob/master/LICENSE")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("jzbrooks")
+                            name.set("Justin Brooks")
+                            email.set("justin.brooks@faithlife.com")
+                        }
+                    }
+
+                    scm {
+                        connection.set("scm:git:github.com/Faithlife/AndroidLint.git")
+                        developerConnection.set("scm:git:ssh://github.com/Faithlife/AndroidLint.git")
+                        url.set("https://github.com/Faithlife/AndroidLint/tree/master")
+                    }
+                }
             }
         }
 
         repositories {
             maven {
+                name = "sonatype"
+                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
                 credentials {
                     username = properties["ossrhUsername"]?.toString() ?: ""
                     password = properties["ossrhPassword"]?.toString() ?: ""
                 }
-
-                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
             }
         }
     }
 
     signing {
-        val signingKeyId = properties["signing.keyid"]?.toString() ?: ""
-        val signingKey = properties["signing.key"]?.toString() ?: ""
-        val signingPassword = properties["signing.password"]?.toString() ?: ""
-        @Suppress("UnstableApiUsage") useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-        sign(publishing.publications["release"])
+        sign(publishing.publications)
     }
 }
