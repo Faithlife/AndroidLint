@@ -1,8 +1,7 @@
-import java.util.Properties
-
 plugins {
     id("com.android.library")
-    `maven-publish`
+    id("maven-publish")
+    signing
 }
 
 android {
@@ -34,7 +33,7 @@ afterEvaluate {
         publications {
             // Creates a Maven publication called "release".
             create<MavenPublication>("release") {
-                groupId = "com.faithlife.lint"
+                groupId = "com.faithlife"
                 artifactId = "android-lint"
                 version = Library.version
 
@@ -44,17 +43,21 @@ afterEvaluate {
 
         repositories {
             maven {
-                val propertiesFile = file("$rootDir/local.properties")
-                val properties = Properties()
-                if (propertiesFile.exists()) {
-                    properties.load(propertiesFile.inputStream())
-                }
                 credentials {
-                    username = properties.getProperty("bintray.user") ?: ""
-                    password = properties.getProperty("bintray.apiKey") ?: ""
+                    username = properties["ossrhUsername"]?.toString() ?: ""
+                    password = properties["ossrhPassword"]?.toString() ?: ""
                 }
-                url = uri("https://api.bintray.com/maven/faithlife/maven/android-lint/;publish=1")
+
+                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
             }
         }
+    }
+
+    signing {
+        val signingKeyId = properties["signing.keyid"]?.toString() ?: ""
+        val signingKey = properties["signing.key"]?.toString() ?: ""
+        val signingPassword = properties["signing.password"]?.toString() ?: ""
+        @Suppress("UnstableApiUsage") useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        sign(publishing.publications["release"])
     }
 }

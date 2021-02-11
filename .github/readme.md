@@ -13,7 +13,7 @@ via Maven:
 
 ```xml
 <dependency>
-  <groupId>com.faithlife.lint</groupId>
+  <groupId>com.faithlife</groupId>
   <artifactId>android-lint</artifactId>
   <version>1.1.2</version>
 </dependency>
@@ -22,7 +22,7 @@ via Maven:
 via Gradle:
 
 ```kotlin
-compileOnly("com.faithlife.lint:android-lint:1.1.2")
+compileOnly("com.faithlife:android-lint:1.1.2")
 ```
 
 ## Build instructions
