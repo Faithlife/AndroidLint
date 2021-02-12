@@ -1,9 +1,8 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    `java-library`
+    id("java-library")
     kotlin("jvm")
 }
 
@@ -33,13 +32,14 @@ kotlin {
 dependencies {
     compileOnly("com.android.tools.lint:lint-api:$lintVersion")
     compileOnly("com.android.tools.lint:lint-checks:$lintVersion")
-    testImplementation("junit:junit:4.12")
+    testImplementation("junit:junit:4.13.1")
     testImplementation("com.android.tools.lint:lint:$lintVersion")
     testImplementation("com.android.tools.lint:lint-tests:$lintVersion")
     testImplementation("com.android.tools:testutils:$lintVersion")
 }
 
-tasks.withType<Jar> {
+tasks.jar {
+    @Suppress("UnstableApiUsage")
     manifest.attributes(
         mapOf("Lint-Registry-v2" to "com.faithlife.lint.IssueRegistry")
     )
