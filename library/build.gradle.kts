@@ -76,8 +76,8 @@ afterEvaluate {
                 name = "sonatype"
                 url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
                 credentials {
-                    username = properties["ossrhUsername"]?.toString() ?: ""
-                    password = properties["ossrhPassword"]?.toString() ?: ""
+                    username = System.getenv("OSSRH_USERNAME")
+                    password = System.getenv("OSSRH_PASSWORD")
                 }
             }
         }

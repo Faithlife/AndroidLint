@@ -20,10 +20,16 @@ allprojects {
     }
 }
 
+ext["signing.keyId"] = System.getenv("SIGNING_KEY_ID")
+ext["signing.password"] = System.getenv("SIGNING_PASSWORD")
+ext["signing.secretKeyRingFile"] = System.getenv("SIGNING_KEY_FILE_PATH")
+
 apply(plugin = "io.codearte.nexus-staging")
 configure<NexusStagingExtension> {
     packageGroup = "com.faithlife"
-    stagingProfileId = properties["sonatypeProfileId"]?.toString() ?: ""
-    username = properties["ossrhUsername"]?.toString() ?: ""
-    password = properties["ossrhPassword"]?.toString() ?: ""
+    stagingProfileId = System.getenv("SONATYPE_PROFILE_ID")
+    numberOfRetries = 60
+    delayBetweenRetriesInMillis = 30_000
+    username = System.getenv("OSSRH_USERNAME")
+    password = System.getenv("OSSRH_PASSWORD")
 }
