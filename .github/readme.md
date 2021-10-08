@@ -29,8 +29,6 @@ compileOnly("com.faithlife:android-lint:1.1.4")
 
 This project uses the Gradle build system.
 
-To build the application: `/.gradlew assemble`
-
-To run the tests: `./gradlew test`
+To build the library: `/.gradlew build`
 
 To see all available tasks: `./gradlew tasks`
