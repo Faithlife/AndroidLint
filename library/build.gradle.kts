@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 30
 
     defaultConfig {
-        minSdkVersion(21)
-        targetSdkVersion(30)
+        minSdk = 23
+        targetSdk = 30
     }
 
     compileOptions {
@@ -25,6 +25,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":checks"))
     lintPublish(project(":checks"))
 }
 
@@ -37,7 +38,7 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 groupId = "com.faithlife"
                 artifactId = "android-lint"
-                version = Library.version
+                version = "1.1.2"
 
                 from(components["release"])
 

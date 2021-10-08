@@ -14,12 +14,17 @@ jobs:
       with:
         java-version: 8
     - name: test
-      run: ./gradlew test
+      run: ./gradlew check
     - name: archive test results
       uses: actions/upload-artifact@v1
       with:
-        name: test results
-        path: checks/build/reports/tests/test/
+        name: checks lint results
+        path: checks/build/reports/lint-results.html
+    - name: archive test results
+      uses: actions/upload-artifact@v1
+      with:
+        name: checks test results
+        path: checks/build/reports/tests/test
     - name: assemble
       run: ./gradlew assembleRelease
     - name: archive library-release.aar

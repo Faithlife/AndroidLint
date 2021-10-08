@@ -42,8 +42,8 @@ class SingleApostropheDetector : ResourceXmlDetector() {
 
             // Full explanation of the issue; you can use some markdown markup such as
             // `monospace`, *italic*, and **bold**.
-            """This check enforces the use of unicode punctuation for single quotation uses
-                like possessive parts of speech or contractions.""".trimIndent(),
+            "This check enforces the use of unicode punctuation for single quotation uses " +
+                "like possessive parts of speech or contractions.",
             Category.TYPOGRAPHY,
             6,
             Severity.WARNING,

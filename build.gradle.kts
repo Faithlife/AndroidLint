@@ -2,12 +2,14 @@ import io.codearte.gradle.nexus.NexusStagingExtension
 
 buildscript {
     repositories {
+        mavenCentral()
         google()
-        jcenter()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:4.1.2")
+        classpath("com.android.tools.build:gradle:7.0.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${libraries.versions.kotlin.get()}")
+
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72")
         classpath("io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0")
     }
@@ -15,8 +17,21 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
         google()
+    }
+
+    tasks {
+        val targetJavaVersion = JavaVersion.VERSION_1_8.toString()
+
+        withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+            kotlinOptions.jvmTarget = targetJavaVersion
+        }
+
+        withType<JavaCompile> {
+            sourceCompatibility = targetJavaVersion
+            targetCompatibility = targetJavaVersion
+        }
     }
 }
 

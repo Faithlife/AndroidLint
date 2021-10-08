@@ -4,6 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     id("java-library")
     kotlin("jvm")
+    id("com.android.lint")
 }
 
 repositories {
@@ -26,16 +27,42 @@ kotlin {
             events = setOf(TestLogEvent.SKIPPED, TestLogEvent.PASSED, TestLogEvent.FAILED)
             showStandardStreams = true
         }
+
+        addTestListener(
+            object : TestListener {
+                override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+                    if (suite.parent == null) {
+                        val output =
+                            "|  Results: ${result.resultType} (${result.testCount} tests, " +
+                                "${result.successfulTestCount} passed, " +
+                                "${result.failedTestCount} failed, " +
+                                "${result.skippedTestCount} skipped)  |"
+
+                        val border = "-".repeat(output.length)
+                        println(
+                            """
+                          |$border
+                          |$output
+                          |$border
+                          """.trimMargin()
+                        )
+                    }
+                }
+
+                override fun afterTest(testDescriptor: TestDescriptor?, result: TestResult?) {}
+                override fun beforeTest(testDescriptor: TestDescriptor?) {}
+                override fun beforeSuite(suite: TestDescriptor?) {}
+            }
+        )
     }
 }
 
 dependencies {
-    compileOnly("com.android.tools.lint:lint-api:$lintVersion")
-    compileOnly("com.android.tools.lint:lint-checks:$lintVersion")
-    testImplementation("junit:junit:4.13.1")
-    testImplementation("com.android.tools.lint:lint:$lintVersion")
-    testImplementation("com.android.tools.lint:lint-tests:$lintVersion")
-    testImplementation("com.android.tools:testutils:$lintVersion")
+    compileOnly(libraries.bundles.kotlin)
+    compileOnly(libraries.lint)
+    testImplementation(libraries.junit)
+    testImplementation(libraries.bundles.kotlin)
+    testImplementation(libraries.bundles.lintTest)
 }
 
 tasks.jar {
