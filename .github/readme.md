@@ -2,7 +2,7 @@ AndroidLint
 ===========
 
 [![Build Status](https://github.com/Faithlife/AndroidLint/workflows/build/badge.svg)](https://github.com/Faithlife/AndroidLint/actions?workflow=build)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.faithlife/android-lint/badge.svg?gav=true)](https://maven-badges.herokuapp.com/maven-central/com.faithlife/android-lint)
+[![Maven Central](https://img.shields.io/maven-central/v/com.faithlife/android-lint.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.faithlife%22%20AND%20a:%22android-lint%22)
 
 A collection of lint checks for Android the enforce Faithlife house rules.
 
