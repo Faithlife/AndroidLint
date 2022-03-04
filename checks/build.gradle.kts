@@ -58,11 +58,11 @@ kotlin {
 }
 
 dependencies {
-    compileOnly(libraries.bundles.kotlin)
-    compileOnly(libraries.lint)
-    testImplementation(libraries.junit)
-    testImplementation(libraries.bundles.kotlin)
-    testImplementation(libraries.bundles.lintTest)
+    compileOnly(lintLibs.bundles.kotlin)
+    compileOnly(lintLibs.lint)
+    testImplementation(lintLibs.junit)
+    testImplementation(lintLibs.bundles.kotlin)
+    testImplementation(lintLibs.bundles.lintTest)
 }
 
 tasks.jar {

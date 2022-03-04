@@ -1,16 +1,14 @@
-import org.jetbrains.kotlin.js.inline.util.getSimpleName
-
 plugins {
     id("com.android.library")
     id("com.vanniktech.maven.publish")
 }
 
 android {
-    compileSdk = 30
+    compileSdk = 31
 
     defaultConfig {
-        minSdk = 23
-        targetSdk = 30
+        minSdk = 25
+        targetSdk = 31
     }
 
     compileOptions {

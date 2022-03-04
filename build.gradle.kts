@@ -1,3 +1,7 @@
+plugins {
+    id("org.jetbrains.changelog") version "1.3.1"
+}
+
 buildscript {
     repositories {
         mavenCentral()
@@ -5,9 +9,9 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.3")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${libraries.versions.kotlin.get()}")
-        classpath("com.vanniktech:gradle-maven-publish-plugin:0.18.0")
+        classpath("com.android.tools.build:gradle:7.1.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${lintLibs.versions.kotlin.get()}")
+        classpath("com.vanniktech:gradle-maven-publish-plugin:0.19.0")
     }
 }
 
