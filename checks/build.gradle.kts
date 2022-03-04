@@ -65,8 +65,7 @@ dependencies {
     testImplementation(lintLibs.bundles.lintTest)
 }
 
-tasks.jar {
-    @Suppress("UnstableApiUsage")
+tasks.named<Jar>("jar").configure {
     manifest.attributes(
         mapOf("Lint-Registry-v2" to "com.faithlife.lint.IssueRegistry")
     )
