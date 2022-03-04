@@ -15,7 +15,7 @@ class SimpleDateFormatDetector : Detector(), SourceCodeScanner {
             issue = ISSUE,
             scope = node,
             location = context.getLocation(node),
-            message = "Use Java 8 time APIs instead."
+            message = "Use Java 8 time APIs instead"
         )
     }
 
@@ -25,7 +25,7 @@ class SimpleDateFormatDetector : Detector(), SourceCodeScanner {
             briefDescription = "Prohibits usage of SimpleDateFormat",
             explanation = "Prefer Java 8 time apis",
             category = Category.CORRECTNESS,
-            severity = Severity.ERROR,
+            severity = Severity.WARNING,
             implementation = Implementation(
                 SimpleDateFormatDetector::class.java,
                 Scope.JAVA_FILE_SCOPE

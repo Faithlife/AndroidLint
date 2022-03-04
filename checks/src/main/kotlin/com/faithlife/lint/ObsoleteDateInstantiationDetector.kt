@@ -6,16 +6,14 @@ import org.jetbrains.uast.UCallExpression
 
 class ObsoleteDateInstantiationDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableConstructorTypes(): List<String>? {
-        return listOf("java.util.Date")
-    }
+    override fun getApplicableConstructorTypes() = listOf("java.util.Date")
 
     override fun visitConstructor(context: JavaContext, node: UCallExpression, constructor: PsiMethod) {
         context.report(
             issue = ISSUE,
             scope = node,
             location = context.getLocation(node),
-            message = "Use Java 8 time APIs instead."
+            message = "Use Java 8 time APIs instead"
         )
     }
 
@@ -25,7 +23,7 @@ class ObsoleteDateInstantiationDetector : Detector(), SourceCodeScanner {
             briefDescription = "Prohibits the use of java.util.Date",
             explanation = "Prefer Java 8 time APIs.",
             category = Category.CORRECTNESS,
-            severity = Severity.ERROR,
+            severity = Severity.WARNING,
             implementation = Implementation(
                 ObsoleteDateInstantiationDetector::class.java,
                 Scope.JAVA_FILE_SCOPE

@@ -11,10 +11,10 @@ class SimpleDateFormatDetectorTests : LintDetectorTest() {
     fun testSuccessfulDetection() {
         val code = """
                 package com.faithlife
-                
+
                 import java.text.SimpleDateFormat
                 import java.util.Locale
-                
+
                 class Dater {
                     fun test() {
                         val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT)
@@ -23,19 +23,19 @@ class SimpleDateFormatDetectorTests : LintDetectorTest() {
             """.trimIndent()
         lint().files(kotlin(code))
             .run()
-            .expect("""src/com/faithlife/Dater.kt:8: Error: Use Java 8 time APIs instead. [SimpleDateFormatDetector]
+            .expect("""src/com/faithlife/Dater.kt:8: Warning: Use Java 8 time APIs instead [SimpleDateFormatDetector]
             |        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT)
             |                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            |1 errors, 0 warnings""".trimMargin())
+            |0 errors, 1 warnings""".trimMargin())
     }
 
     @Test
     fun testCodeWithoutSimpleDateFormat() {
         val code = """
                 package com.faithlife
-                
+
                 import java.time.format.DateTimeFormatter
-                
+
                 class Dater {
                     fun test() {
                         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
