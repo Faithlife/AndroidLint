@@ -1,3 +1,5 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
 plugins {
     id("com.android.library")
     id("com.vanniktech.maven.publish")
@@ -24,4 +26,8 @@ repositories {
 dependencies {
     implementation(project(":checks"))
     lintPublish(project(":checks"))
+}
+
+base {
+    AndroidSingleVariantLibrary()
 }
