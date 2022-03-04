@@ -12,6 +12,21 @@
 - Use of period at the end of a lint message
 - Updated development tools
 
-## [1.1.4]
+## [v1.1.4]
+### Added
+- A vendor to the lint registry
+
 ### Changed
-- Publish procedures and maven coordinates
+- Update build tools
+- Simplified maven publishing
+- Run lint against the lint library
+
+## [v1.1.3]
+### Changed
+- Compile against SDK 30
+- Update the Android Gradle Plugin
+- Publish to sonatype nexus
+
+## [v1.0.1]
+### Fixed
+- An issue parsing escaped apostrophes
