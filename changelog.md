@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Added
-- changelog automation
+- Changelog automation
 
 ### Changed
 - Issues related to Java 8 time APIs (java.time) are warnings instead of errors

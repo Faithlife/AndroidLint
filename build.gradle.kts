@@ -17,6 +17,8 @@ buildscript {
     }
 }
 
+version = properties("VERSION_NAME")
+
 changelog {
     path.set("$rootDir/changelog.md")
     version.set(properties("VERSION_NAME"))
