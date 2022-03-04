@@ -1,3 +1,5 @@
+fun properties(key: String) = project.findProperty(key).toString()
+
 plugins {
     id("org.jetbrains.changelog") version "1.3.1"
 }
@@ -13,6 +15,10 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${lintLibs.versions.kotlin.get()}")
         classpath("com.vanniktech:gradle-maven-publish-plugin:0.19.0")
     }
+}
+
+changelog {
+    version.set(properties("VERSION_NAME"))
 }
 
 allprojects {
