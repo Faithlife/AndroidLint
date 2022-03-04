@@ -39,25 +39,25 @@ jobs:
           echo "::set-output name=version::$VERSION"
           echo "::set-output name=changelog::$CHANGELOG"
 
-    - name: test
+    - name: Run checks
       run: ./gradlew check
 
-    - name: archive test results
+    - name: Archive lint results
       uses: actions/upload-artifact@v1
       with:
         name: checks lint results
         path: checks/build/reports/lint-results.html
 
-    - name: archive test results
+    - name: Archive test results
       uses: actions/upload-artifact@v1
       with:
         name: checks test results
         path: checks/build/reports/tests/test
 
-    - name: assemble
+    - name: Assemble
       run: ./gradlew assembleRelease
 
-    - name: archive library-release.aar
+    - name: Archive library-release.aar
       uses: actions/upload-artifact@v1
       with:
         name: library-release.aar
