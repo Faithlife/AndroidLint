@@ -71,3 +71,8 @@ tasks.jar {
         mapOf("Lint-Registry-v2" to "com.faithlife.lint.IssueRegistry")
     )
 }
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
