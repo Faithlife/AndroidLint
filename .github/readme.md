@@ -9,20 +9,8 @@ A collection of lint checks for Android the enforce Faithlife house rules.
 
 ### Download
 
-via Maven:
-
-```xml
-<dependency>
-  <groupId>com.faithlife</groupId>
-  <artifactId>android-lint</artifactId>
-  <version>1.1.4</version>
-</dependency>
-```
-
-via Gradle:
-
 ```kotlin
-compileOnly("com.faithlife:android-lint:1.1.4")
+compileOnly("com.faithlife:android-lint:$version")
 ```
 
 ## Build instructions
