@@ -6,7 +6,7 @@ on:
         types: [released]
 
 env:
-    SIGNING_KEY_RING_FILE: "key.gpg"
+    SIGNING_KEY_RING_FILE: "${RUNNER_TEMP}key.gpg"
 
 jobs:
     publish:
@@ -42,7 +42,7 @@ jobs:
                   git fetch --unshallow
                   sudo bash -c "echo '$GPG_KEY_CONTENTS' | base64 -d > '$SIGNING_KEY_RING_FILE'"
                   echo 'tail'
-                  tail -c 6 $SIGNING_KEY_RING_FILE
+                  tail -c 6 $GPG_KEY_CONTENTS
                   du -h $SIGNING_KEY_RING_FILE
 
             # Publish aar to maven central via sonatype repository
