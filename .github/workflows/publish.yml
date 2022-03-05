@@ -6,7 +6,7 @@ on:
         types: [released]
 
 env:
-    SIGNING_KEY_RING_FILE: "${RUNNER_TEMP}key.gpg"
+    SIGNING_KEY_RING_FILE: "key.gpg"
 
 jobs:
     publish:
