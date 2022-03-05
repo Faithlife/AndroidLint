@@ -6,7 +6,7 @@ on:
         types: [released]
 
 env:
-    SIGNING_KEY_RING_FILE: "${RUNNER_TEMP}key.gpg"
+    SIGNING_KEY_RING_FILE: "${RUNNER_TEMP}/key.gpg"
 
 jobs:
     publish:
@@ -36,13 +36,8 @@ jobs:
               env:
                   GPG_KEY_CONTENTS: ${{ secrets.SONATYPE_BASE64_SIGNING_KEY }}
               run: |
-                  if [[ -z "$GPG_KEY_CONTENTS" ]]; then
-                    echo 'The key is empty'
-                  fi
                   git fetch --unshallow
                   sudo bash -c "echo '$GPG_KEY_CONTENTS' | base64 -d > '$SIGNING_KEY_RING_FILE'"
-                  echo 'tail: ${GPG_KEY_CONTENTS: -6}'
-                  du -h $SIGNING_KEY_RING_FILE
 
             # Publish aar to maven central via sonatype repository
             - name: Publish to MavenCentral
