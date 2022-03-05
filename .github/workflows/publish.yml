@@ -41,8 +41,7 @@ jobs:
                   fi
                   git fetch --unshallow
                   sudo bash -c "echo '$GPG_KEY_CONTENTS' | base64 -d > '$SIGNING_KEY_RING_FILE'"
-                  echo 'tail'
-                  tail -c 6 $GPG_KEY_CONTENTS
+                  echo 'tail: ${GPG_KEY_CONTENTS: -6}'
                   du -h $SIGNING_KEY_RING_FILE
 
             # Publish aar to maven central via sonatype repository
