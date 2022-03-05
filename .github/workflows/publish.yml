@@ -37,7 +37,7 @@ jobs:
                   GPG_KEY_CONTENTS: ${{ secrets.SONATYPE_BASE64_SIGNING_KEY }}
               run: |
                   git fetch --unshallow
-                  sudo bash -c "echo '$GPG_KEY_CONTENTS' | base64 -d > '$SIGNING_KEY_RING_FILE'"
+                  sudo bash -c "echo '$GPG_KEY_CONTENTS' | base64 -d > '${{ env.SIGNING_KEY_RING_FILE }}'"
 
             # Publish aar to maven central via sonatype repository
             - name: Publish to MavenCentral
