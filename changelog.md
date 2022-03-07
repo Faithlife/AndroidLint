@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- Java version is increased to Java 11
 
 ### Deprecated
 

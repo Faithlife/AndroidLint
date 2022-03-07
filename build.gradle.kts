@@ -1,3 +1,8 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+val VERSION_NAME: String by properties
+val JAVA_VERSION: String by properties
+
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
@@ -17,11 +22,11 @@ buildscript {
     }
 }
 
-version = properties("VERSION_NAME")
+version = VERSION_NAME
 
 changelog {
     path.set("$rootDir/changelog.md")
-    version.set(properties("VERSION_NAME"))
+    version.set(VERSION_NAME)
 }
 
 allprojects {
@@ -31,15 +36,13 @@ allprojects {
     }
 
     tasks {
-        val targetJavaVersion = JavaVersion.VERSION_1_8.toString()
-
-        withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-            kotlinOptions.jvmTarget = targetJavaVersion
+        withType<KotlinCompile>().configureEach {
+            kotlinOptions.jvmTarget = JAVA_VERSION
         }
 
-        withType<JavaCompile> {
-            sourceCompatibility = targetJavaVersion
-            targetCompatibility = targetJavaVersion
+        withType<JavaCompile>().configureEach {
+            sourceCompatibility = JAVA_VERSION
+            targetCompatibility = JAVA_VERSION
         }
     }
 }

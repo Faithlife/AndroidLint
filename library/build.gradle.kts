@@ -3,6 +3,8 @@ plugins {
     id("com.vanniktech.maven.publish")
 }
 
+val JAVA_VERSION: String by properties
+
 android {
     compileSdk = 31
 
@@ -12,8 +14,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.toVersion(JAVA_VERSION)
+        targetCompatibility = JavaVersion.toVersion(JAVA_VERSION)
     }
 }
 
