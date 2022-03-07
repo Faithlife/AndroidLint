@@ -10,6 +10,7 @@
 ### Removed
 
 ### Fixed
+- Multiple build variants are published after upgrading gradle maven publish plugin to [0.19.0](https://github.com/vanniktech/gradle-maven-publish-plugin/blob/master/CHANGELOG.md#version-0190-2022-02-26)
 
 ### Security
 

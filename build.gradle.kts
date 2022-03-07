@@ -43,7 +43,3 @@ allprojects {
         }
     }
 }
-
-ext["signing.keyId"] = System.getenv("SIGNING_KEY_ID")
-ext["signing.password"] = System.getenv("SIGNING_PASSWORD")
-ext["signing.secretKeyRingFile"] = System.getenv("SIGNING_KEY_FILE_PATH")
