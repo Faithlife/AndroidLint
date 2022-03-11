@@ -2,6 +2,7 @@ package com.faithlife.lint
 
 import com.android.resources.ResourceFolderType
 import com.android.tools.lint.detector.api.*
+import com.android.utils.text
 import org.w3c.dom.Element
 
 class SingleApostropheDetector : ResourceXmlDetector() {
@@ -11,20 +12,24 @@ class SingleApostropheDetector : ResourceXmlDetector() {
     override fun getApplicableElements(): MutableCollection<String> = mutableListOf("string")
 
     override fun visitElement(context: XmlContext, element: Element) {
-        if (SINGLE_APOSTROPHE_REGEX.containsMatchIn(element.firstChild.nodeValue)) {
-            val fix = LintFix.create()
-                .replace()
-                .pattern("\\\\?'")
-                .with("’")
-                .build()
+        try {
+            if (SINGLE_APOSTROPHE_REGEX.containsMatchIn(element.textContent)) {
+                val fix = LintFix.create()
+                    .replace()
+                    .pattern("\\\\?'")
+                    .with("’")
+                    .build()
 
-            context.report(
-                ISSUE,
-                element,
-                context.getLocation(element),
-                "Prefer unicode apostrophes.\n\nhttps://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters",
-                fix
-            )
+                context.report(
+                    ISSUE,
+                    element,
+                    context.getLocation(element),
+                    "Prefer unicode apostrophes.\n\nhttps://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters",
+                    fix
+                )
+            }
+        } catch (e: NullPointerException) {
+            println("File: ${context.file.absolutePath}\nText: ${element.text()} Element: $element")
         }
     }
 
