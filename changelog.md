@@ -4,6 +4,19 @@
 ### Added
 
 ### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [1.1.6]
+### Added
+
+### Changed
 - Java version is increased to Java 11
 
 ### Deprecated
