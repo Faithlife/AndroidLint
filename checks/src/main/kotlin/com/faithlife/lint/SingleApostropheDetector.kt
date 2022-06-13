@@ -5,6 +5,7 @@ import com.android.tools.lint.detector.api.*
 import com.android.utils.text
 import org.w3c.dom.Element
 
+@Suppress("UnstableApiUsage")
 class SingleApostropheDetector : ResourceXmlDetector() {
 
     override fun appliesTo(folderType: ResourceFolderType) = folderType == ResourceFolderType.VALUES

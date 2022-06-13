@@ -4,6 +4,7 @@ import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.client.api.IssueRegistry as ApiIssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
+@Suppress("UnstableApiUsage")
 class IssueRegistry : ApiIssueRegistry() {
     override val vendor = Vendor(
         vendorName = "Faithlife",
@@ -17,5 +18,6 @@ class IssueRegistry : ApiIssueRegistry() {
         SingleApostropheDetector.ISSUE,
         SimpleDateFormatDetector.ISSUE
     )
+
     override val api: Int = CURRENT_API
 }
