@@ -17,6 +17,10 @@ android {
         sourceCompatibility = JavaVersion.toVersion(JAVA_VERSION)
         targetCompatibility = JavaVersion.toVersion(JAVA_VERSION)
     }
+
+    lint {
+        warningsAsErrors = true
+    }
 }
 
 repositories {
