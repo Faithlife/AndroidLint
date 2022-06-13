@@ -30,14 +30,13 @@ class SingleApostropheDetector : ResourceXmlDetector() {
                 )
             }
         } catch (e: NullPointerException) {
-            println("File: ${context.file.absolutePath}\nText: ${element.text()} Element: $element")
+            context.log(e, "File: ${context.file.absolutePath}\nText: ${element.text()} Element: $element")
         }
     }
 
     companion object {
         private val SINGLE_APOSTROPHE_REGEX = Regex("\\b[a-zA-Z0-9]+\\\\?'[a-zA-Z0-9]*")
 
-        @Suppress("UnstableApiUsage")
         val ISSUE = Issue.create(
             // ID: used in @SuppressLint warnings etc
             "UseUnicodeApostrophe",
