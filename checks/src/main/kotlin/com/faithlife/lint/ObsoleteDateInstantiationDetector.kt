@@ -4,6 +4,7 @@ import com.android.tools.lint.detector.api.*
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
 
+@Suppress("UnstableApiUsage")
 class ObsoleteDateInstantiationDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableConstructorTypes() = listOf("java.util.Date")

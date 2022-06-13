@@ -4,11 +4,12 @@ import com.android.tools.lint.detector.api.*
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
 
+@Suppress("UnstableApiUsage")
 class SimpleDateFormatDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableConstructorTypes(): List<String>? {
-        return listOf("java.text.SimpleDateFormat")
-    }
+    override fun getApplicableConstructorTypes() = listOf(
+        "java.text.SimpleDateFormat",
+    )
 
     override fun visitConstructor(context: JavaContext, node: UCallExpression, constructor: PsiMethod) {
         context.report(
