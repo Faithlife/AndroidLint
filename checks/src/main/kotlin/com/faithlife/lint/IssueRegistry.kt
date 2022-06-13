@@ -15,8 +15,9 @@ class IssueRegistry : ApiIssueRegistry() {
 
     override val issues = listOf(
         ObsoleteDateInstantiationDetector.ISSUE,
+        RedundantCoroutineScopeDetector.ISSUE,
+        SimpleDateFormatDetector.ISSUE,
         SingleApostropheDetector.ISSUE,
-        SimpleDateFormatDetector.ISSUE
     )
 
     override val api: Int = CURRENT_API

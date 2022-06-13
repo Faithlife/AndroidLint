@@ -43,7 +43,6 @@ class SingleApostropheDetector : ResourceXmlDetector() {
                 """
                 |File: ${context.file.absolutePath}
                 |Text: ${element.text()} Element: $element
-                |
                 """.trimMargin()
             )
         }
