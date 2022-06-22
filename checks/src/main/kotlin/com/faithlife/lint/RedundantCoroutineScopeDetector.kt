@@ -85,9 +85,8 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
     )
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
-        // If the class implements CoroutineScope or extends a CoroutineScope
-        // implementation, suggest alternatives
-        val info = context.determineLocationToDelete(declaration)
+        // If the class inherits CoroutineScope, suggest alternatives.
+        val info = context.determineCoroutineScopeSuperTypePosition(declaration)
         if (info != null) {
             val (location, entry) = info
             context.report(
@@ -266,7 +265,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
         }
     }
 
-    private fun JavaContext.determineLocationToDelete(
+    private fun JavaContext.determineCoroutineScopeSuperTypePosition(
         declaration: UClass,
     ): Pair<Location, KtSuperTypeListEntry>? {
         val file = declaration.getContainingUFile()?.getIoFile() ?: return null
