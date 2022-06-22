@@ -1,7 +1,15 @@
 package com.faithlife.lint
 
 import com.android.resources.ResourceFolderType
-import com.android.tools.lint.detector.api.*
+import com.android.tools.lint.detector.api.Category
+import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.detector.api.LintFix
+import com.android.tools.lint.detector.api.ResourceXmlDetector
+import com.android.tools.lint.detector.api.Scope
+import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.detector.api.TextFormat
+import com.android.tools.lint.detector.api.XmlContext
 import com.android.utils.text
 import org.w3c.dom.Element
 
@@ -10,7 +18,7 @@ class SingleApostropheDetector : ResourceXmlDetector() {
 
     override fun appliesTo(folderType: ResourceFolderType) = folderType == ResourceFolderType.VALUES
 
-    override fun getApplicableElements(): MutableCollection<String> = mutableListOf("string")
+    override fun getApplicableElements() = mutableListOf("string")
 
     override fun visitElement(context: XmlContext, element: Element) {
         try {
@@ -25,12 +33,19 @@ class SingleApostropheDetector : ResourceXmlDetector() {
                     ISSUE,
                     element,
                     context.getLocation(element),
-                    "Prefer unicode apostrophes.\n\nhttps://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters",
+                    ISSUE.getBriefDescription(TextFormat.RAW),
                     fix
                 )
             }
         } catch (e: NullPointerException) {
-            context.log(e, "File: ${context.file.absolutePath}\nText: ${element.text()} Element: $element")
+            context.log(
+                e,
+                """
+                |File: ${context.file.absolutePath}
+                |Text: ${element.text()} Element: $element
+                |
+                """.trimMargin()
+            )
         }
     }
 
@@ -38,21 +53,14 @@ class SingleApostropheDetector : ResourceXmlDetector() {
         private val SINGLE_APOSTROPHE_REGEX = Regex("\\b[a-zA-Z0-9]+\\\\?'[a-zA-Z0-9]*")
 
         val ISSUE = Issue.create(
-            // ID: used in @SuppressLint warnings etc
             "UseUnicodeApostrophe",
-
-            // Title -- shown in the IDE's preference dialog, as category headers in the
-            // Analysis results window, etc
-            "Prefer unicode punctuation",
-
-            // Full explanation of the issue; you can use some markdown markup such as
-            // `monospace`, *italic*, and **bold**.
+            "Prefer unicode apostrophes.",
             "This check enforces the use of unicode punctuation for single quotation uses " +
                 "like possessive parts of speech or contractions.",
+            Implementation(SingleApostropheDetector::class.java, Scope.RESOURCE_FILE_SCOPE),
+            "https://wiki.lrscorp.net/Use_Unicode_Punctuation_Characters",
             Category.TYPOGRAPHY,
-            6,
-            Severity.WARNING,
-            Implementation(SingleApostropheDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
+            severity = Severity.WARNING,
         )
     }
 }

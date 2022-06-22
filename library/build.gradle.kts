@@ -1,3 +1,6 @@
+
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
     id("com.android.library")
     id("com.vanniktech.maven.publish")
@@ -30,6 +33,11 @@ repositories {
 dependencies {
     implementation(project(":checks"))
     lintPublish(project(":checks"))
+}
+
+mavenPublishing {
+    signAllPublications()
+    publishToMavenCentral(SonatypeHost.DEFAULT)
 }
 
 mavenPublish {

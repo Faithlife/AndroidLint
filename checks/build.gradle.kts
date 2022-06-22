@@ -1,6 +1,8 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
+val JAVA_VERSION: String by properties
+
 plugins {
     id("java-library")
     kotlin("jvm")
@@ -44,7 +46,7 @@ kotlin {
                           |$border
                           |$output
                           |$border
-                          """.trimMargin()
+                            """.trimMargin()
                         )
                     }
                 }
@@ -60,6 +62,7 @@ kotlin {
 dependencies {
     compileOnly(lintLibs.bundles.kotlin)
     compileOnly(lintLibs.lint)
+
     testImplementation(lintLibs.junit)
     testImplementation(lintLibs.bundles.kotlin)
     testImplementation(lintLibs.bundles.lintTest)
@@ -72,6 +75,6 @@ tasks.named<Jar>("jar").configure {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.toVersion(JAVA_VERSION)
+    targetCompatibility = JavaVersion.toVersion(JAVA_VERSION)
 }
