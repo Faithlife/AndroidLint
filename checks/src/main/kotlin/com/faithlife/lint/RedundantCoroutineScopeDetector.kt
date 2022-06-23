@@ -42,11 +42,6 @@ import java.util.EnumSet
 
 @Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
-    override fun filterIncident(context: Context, incident: Incident, map: LintMap): Boolean {
-
-        return super.filterIncident(context, incident, map)
-    }
-
     override fun getApplicableMethodNames(): List<String> = listOf("launch", "async")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
