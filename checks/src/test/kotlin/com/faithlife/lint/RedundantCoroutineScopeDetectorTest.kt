@@ -294,21 +294,16 @@ class ProfileView : View(), CoroutineScope
             """src/com/faithlife/ProfileFragment.kt:6: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
                         ~~~~~~~~~~~~~~~~~~~~
-src/com/faithlife/ProfileFragment.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
-    override val coroutineContext: CoroutineContext
-    ^
-0 errors, 2 warnings"""
+0 errors, 1 warnings"""
         )
 
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ProfileFragment.kt line 6: Delete:
 @@ -6 +6
 - class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
-+ class ProfileFragment : LifecycleOwner {
-Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete:
-@@ -7 +7
 -     override val coroutineContext: CoroutineContext
--         get() = object : CoroutineContext {}"""
+-         get() = object : CoroutineContext {}
++ class ProfileFragment : LifecycleOwner {"""
         )
     }
 
@@ -347,13 +342,9 @@ interface ALifecycleOwner : CoroutineScope, LifecycleOwner {
 src/com/faithlife/ALifecycleOwner.kt:11: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : ALifecycleOwner {
                         ~~~~~~~~~~~~~~~
-src/com/faithlife/ALifecycleOwner.kt:14: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
-    override val coroutineContext: CoroutineContext
-    ^
-0 errors, 3 warnings"""
+0 errors, 2 warnings"""
         )
 
-        // todo: this diff is busted. The removing the last type in a supertype list should remove the colon
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ALifecycleOwner.kt line 7: Delete:
 @@ -7 +7
@@ -363,7 +354,6 @@ Fix for src/com/faithlife/ALifecycleOwner.kt line 11: Delete:
 @@ -11 +11
 - class ProfileFragment : ALifecycleOwner {
 + class ProfileFragment {
-Fix for src/com/faithlife/ALifecycleOwner.kt line 14: Delete:
 @@ -14 +14
 -     override val coroutineContext: CoroutineContext
 -         get() = object : CoroutineContext {}"""

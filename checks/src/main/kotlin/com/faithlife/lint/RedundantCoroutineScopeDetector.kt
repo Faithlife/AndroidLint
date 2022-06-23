@@ -3,10 +3,13 @@ package com.faithlife.lint
 import com.android.tools.lint.checks.DataFlowAnalyzer
 import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.Category
+import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.LintMap
 import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
@@ -39,6 +42,11 @@ import java.util.EnumSet
 
 @Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
+    override fun filterIncident(context: Context, incident: Incident, map: LintMap): Boolean {
+
+        return super.filterIncident(context, incident, map)
+    }
+
     override fun getApplicableMethodNames(): List<String> = listOf("launch", "async")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
@@ -64,6 +72,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             includeArguments = false
         )
 
+        Incident()
         context.report(
             issue = ISSUE,
             scope = node as UElement,
@@ -89,18 +98,6 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
         val info = context.determineCoroutineScopeSuperTypePosition(declaration)
         if (info != null) {
             val (location, entry) = info
-            context.report(
-                issue = ISSUE,
-                scope = entry as PsiElement,
-                location = context.getLocation(entry as PsiElement),
-                message = MESSAGE,
-                fix().replace()
-                    .sharedName(ISSUE_FIX_FAMILY)
-                    .range(location)
-                    .with("")
-                    .reformat(true)
-                    .build()
-            )
 
             val coroutineScopeClass = context.evaluator
                 .findClass("kotlinx.coroutines.CoroutineScope")
@@ -109,7 +106,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             val coroutineScopeOverrides = declaration.methods
                 .filter { it.findSuperMethods(coroutineScopeClass).isNotEmpty() }
 
-            for (method in coroutineScopeOverrides) {
+            val coroutineScopeOverridesFixes = coroutineScopeOverrides.map { method ->
                 val methodPsi = method.sourcePsi
                 val element = if (methodPsi is KtPropertyAccessor) {
                     // Delete the whole property, not just the accessor
@@ -118,18 +115,26 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                     method
                 } as PsiElement
 
-                context.report(
-                    issue = ISSUE,
-                    scope = element,
-                    location = context.getLocation(element),
-                    message = MESSAGE,
-                    fix().replace()
-                        .sharedName(ISSUE_FIX_FAMILY)
-                        .range(context.getLocation(element))
-                        .with("")
-                        .build()
-                )
+                fix().replace()
+                    .range(context.getLocation(element))
+                    .with("")
+                    .build()
             }
+
+            context.report(
+                issue = ISSUE,
+                scope = entry as PsiElement,
+                location = context.getLocation(entry as PsiElement),
+                message = MESSAGE,
+                fix().composite(
+                    fix().replace()
+                        .range(location)
+                        .with("")
+                        .reformat(true)
+                        .build(),
+                    *coroutineScopeOverridesFixes.toTypedArray()
+                )
+            )
         }
 
         // If the class declares fields that implement CoroutineScope or
