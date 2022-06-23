@@ -67,7 +67,6 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             includeArguments = false
         )
 
-        Incident()
         context.report(
             issue = ISSUE,
             scope = node as UElement,
