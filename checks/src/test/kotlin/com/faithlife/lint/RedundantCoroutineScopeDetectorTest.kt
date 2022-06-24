@@ -519,7 +519,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
     }
 
     @Test
-    fun `test fix coroutine builder with private field receiver`() {
+    fun `test fix coroutine builder with field receiver`() {
         val problematicCode = """
             package com.faithlife
 
@@ -665,43 +665,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
     }
 
     @Test
-    fun `test public CoroutineScope field is not changed`() {
-        val problematicCodeWithoutEasyFix = """
-            package com.faithlife
-
-            import androidx.fragment.app.Fragment
-            import kotlinx.coroutines.launch
-
-            class ProfileFragment : Fragment() {
-                @JvmField val scope = CoroutineScopeBase()
-                override fun onCreate(savedInstanceState: Bundle?) {
-                    super.onCreate(savedInstanceState)
-                    scope.apply {
-                        launch { }
-                    }
-                }
-            }
-        """.trimIndent()
-
-        val result = lint().files(
-            kotlin(COROUTINE_SCOPE_KT_STUB),
-            kotlin(COROUTINE_SCOPE_IMPL_KT_STUB),
-            java(LIFECYCLE_JAVA_STUB),
-            java(FRAGMENT_JAVA_STUB),
-            kotlin(problematicCodeWithoutEasyFix),
-        ).run()
-
-        result.expect(
-            """src/com/faithlife/ProfileFragment.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
-    @JvmField val scope = CoroutineScopeBase()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
-        )
-        result.expectFixDiffs("")
-    }
-
-    @Test
-    fun `test public CoroutineScope property is not changed`() {
+    fun `test public CoroutineScope property is changed`() {
         // A property has synthetic accessors, which are represented
         // distinct from UFields in UAST.
         val problematicCodeWithoutEasyFix = """
@@ -735,11 +699,16 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings"""
         )
-        result.expectFixDiffs("")
+        result.expectFixDiffs("""Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+@@ -7 +7
+-     val scope = CoroutineScopeBase()
+@@ -10 +9
+-         scope.apply {
++         viewLifecycleOwner.lifecycleScope.apply {""")
     }
 
     @Test
-    fun `test CoroutineScope property returned from public function is not changed`() {
+    fun `test rvalue is changed in local variable assignment`() {
         // A property has synthetic accessors, which are represented
         // distinct from UFields in UAST.
         val problematicCodeWithoutEasyFix = """
@@ -773,11 +742,16 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings"""
         )
-        result.expectFixDiffs("")
+        result.expectFixDiffs("""Fix for src/com/faithlife/ProfileFragment.kt line 8: Delete CoroutineScope member:
+@@ -8 +8
+-     private val scope = CoroutineScopeBase()
+@@ -11 +10
+-         val itTracksAssignment = scope
++         val itTracksAssignment = viewLifecycleOwner.lifecycleScope""")
     }
 
     @Test
-    fun `test private CoroutineScope property stored in field is not changed`() {
+    fun `test rvalue is replaced in field assignment`() {
         // A property has synthetic accessors, which are represented
         // distinct from UFields in UAST.
         val problematicCodeWithoutEasyFix = """
@@ -813,51 +787,12 @@ src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings"""
         )
-        result.expectFixDiffs("")
-    }
-
-    @Test
-    fun `test private CoroutineScope property stored in convoluted field is not changed`() {
-        // A property has synthetic accessors, which are represented
-        // distinct from UFields in UAST.
-        val problematicCodeWithoutEasyFix = """
-            package com.faithlife
-
-            import androidx.fragment.app.Fragment
-            import kotlinx.coroutines.CoroutineScope
-
-            class ProfileFragment : Fragment() {
-                private val scope = CoroutineScopeBase()
-                lateinit var sneakyScope: CoroutineScope
-
-                fun superSneakyExfiltration() {
-                    scope.let {
-                        it.apply {
-                            sneakyScope = this
-                        }
-                    }
-                }
-            }
-        """.trimIndent()
-
-        val result = lint().files(
-            kotlin(COROUTINE_SCOPE_KT_STUB),
-            kotlin(COROUTINE_SCOPE_IMPL_KT_STUB),
-            java(LIFECYCLE_JAVA_STUB),
-            java(FRAGMENT_JAVA_STUB),
-            kotlin(problematicCodeWithoutEasyFix),
-        ).run()
-
-        result.expect(
-            """src/com/faithlife/ProfileFragment.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
-    private val scope = CoroutineScopeBase()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
-    lateinit var sneakyScope: CoroutineScope
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 2 warnings"""
-        )
-        result.expectFixDiffs("")
+        result.expectFixDiffs("""Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+@@ -7 +7
+-     private val scope = CoroutineScopeBase()
+@@ -11 +10
+-         sneakyScope = scope
++         sneakyScope = viewLifecycleOwner.lifecycleScope""")
     }
 
     private companion object {

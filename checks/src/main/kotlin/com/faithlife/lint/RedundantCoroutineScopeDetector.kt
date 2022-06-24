@@ -14,9 +14,14 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiExpression
+import com.intellij.psi.PsiField
+import com.intellij.psi.PsiReference
+import com.intellij.psi.PsiReferenceExpression
 import com.intellij.psi.PsiType
 import com.intellij.psi.PsiVariable
 import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
@@ -33,11 +38,13 @@ import org.jetbrains.uast.UReturnExpression
 import org.jetbrains.uast.UastVisibility
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUFile
-import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.getIoFile
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import java.util.EnumSet
+import org.jetbrains.uast.UBinaryExpression
+import org.jetbrains.uast.ULocalVariable
 import org.jetbrains.uast.USimpleNameReferenceExpression
+import org.jetbrains.uast.toUElement
 
 @Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
@@ -49,14 +56,17 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
     )
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
+        val newScope = checkNotNull(context.evaluator.providedCoroutineScope(declaration)) {
+            "Classes defined in applicableSuperClasses should always have a replacement"
+        }
 
-        val providedCoroutineScope = context.evaluator.providedCoroutineScope(declaration) ?: return
-
-        detectSuperType(context, declaration, providedCoroutineScope)
+        // If the class implements CoroutineScope or extends a CoroutineScope
+        // implementation, recommend using newScope instead
+        detectSuperType(context, declaration, newScope)
 
         // If the class declares fields that implement CoroutineScope or
-        // extends a CoroutineScope implementation, suggest alternatives
-        detectPrivateMembers(context, declaration, providedCoroutineScope)
+        // extends a CoroutineScope implementation, recommend using newScope
+        detectPrivateMembers(context, declaration, newScope)
     }
 
     private fun detectPrivateMembers(
@@ -67,109 +77,39 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
         for (field in declaration.fields.filter { context.evaluator.isCoroutineScope(it.type) }) {
             val coroutineScopeCallSiteFixes = mutableListOf<LintFix>()
 
-            // The data flow analyzer doesn't work on synthetic methods because they don't have a
-            // body in the UAST representation. They need to be checked separately.
-            var canFixWithoutBreakingInterface = !field.isVisibleOrHasVisibleAccessor
+            val tracker = object : AbstractUastVisitor() {
+                override fun visitSimpleNameReferenceExpression(
+                    node: USimpleNameReferenceExpression
+                ): Boolean {
+                    // If a field is referenced, add a fix regardless if the implementation
+                    // uses a property accessor (typically implicit for public properties) or
+                    // uses the field directly (typical of private properties)
+                    if (node.resolve().toUElement()?.sourcePsi == field.sourcePsi) {
+                        coroutineScopeCallSiteFixes.add(
+                            fix().replace()
+                                .range(context.getLocation(node))
+                                .with(providedCoroutineScope)
+                                .reformat(true)
+                                .build()
+                        )
 
-            // If the field or property is private, check all the methods to
-            // see if it is otherwise escaping
-            val tracker = object : DataFlowAnalyzer(
-                initial = listOf(field),
-                initialReferences = listOf(field.javaPsi as PsiVariable)
-            ) {
-                init {
-                    // This is a hack to make the data flow analyzer aware of
-                    // the type of the field being tracked (node). The current
-                    // implementation assumes that only expressions will ever be
-                    // tracked. This is necessary for scope functions like apply
-                    // that may have to infer a type for `this`.
-                    val type = context.evaluator.getTypeClass(field.type)
-                    if (type != null) {
-                        types.add(type)
-                    }
-                }
-
-                override fun receiver(call: UCallExpression) {
-                    if ((call.receiver as? USimpleNameReferenceExpression)?.resolve() != field.javaPsi) return
-
-                    val callLocation = context.getCallLocation(
-                        call,
-                        includeReceiver = true,
-                        includeArguments = false
-                    )
-
-                    coroutineScopeCallSiteFixes.add(
-                        fix().replace()
-                            .range(callLocation)
-                            .with("$providedCoroutineScope.${call.methodName}")
-                            .reformat(true)
-                            .build()
-                    )
-                }
-
-                override fun field(field: UElement) {
-                    // The analyzer doesn't pass information about the assignee.
-                    // While it is possible to get information about the lhs from
-                    // `field.uastParent`, determining the assigned value's true
-                    // visibility might be tricky. For example, if the lhs is a private
-                    // mutator method, it is difficult to determine if the underlying field
-                    // being assigned by that mutator is public, or if it has a public
-                    // accessor. It is possible, but might involve a lot of recursive
-                    // method visitation.
-                    canFixWithoutBreakingInterface = false
-                }
-
-                override fun returns(expression: UReturnExpression) {
-                    val method = checkNotNull(expression.getContainingUMethod()) {
-                        "Returns must happen from a method"
+                        return true
                     }
 
-                    canFixWithoutBreakingInterface =
-                        !LEAKY_VISIBILITY.contains(method.visibility)
-                }
-
-                override fun argument(call: UCallExpression, reference: UElement) {
-                    if ((reference as? USimpleNameReferenceExpression)?.resolve() != field.javaPsi) return
-
-                    val definition = checkNotNull(call.resolve())
-
-                    val cls = checkNotNull(definition.containingClass) {
-                        "Only classes can have methods"
-                    }
-
-                    // StandardKt functions are common and known to be pure
-                    canFixWithoutBreakingInterface = cls == declaration ||
-                        cls.qualifiedName == "kotlin.StandardKt__StandardKt"
-
-                    if (!canFixWithoutBreakingInterface) return
-
-                    coroutineScopeCallSiteFixes.add(
-                        fix().replace()
-                            .range(context.getLocation(reference))
-                            .with(providedCoroutineScope)
-                            .reformat(true)
-                            .build()
-                    )
+                    return super.visitSimpleNameReferenceExpression(node)
                 }
             }
 
             for (method in declaration.methods) {
-                // If a quick fix would introduce a breaking interface
-                // change, don't visit the rest of the methods since we
-                // won't add a quickfix to the incident anyway.
-                if (!canFixWithoutBreakingInterface) break
-
                 method.accept(tracker)
             }
-
-            val initializer = field.uastInitializer
 
             context.report(
                 issue = ISSUE,
                 scope = field as UElement,
                 location = context.getLocation(element = field),
                 message = MESSAGE,
-                if (canFixWithoutBreakingInterface && initializer != null) {
+                if (field.uastInitializer != null) {
                     fix().name("Delete CoroutineScope member").composite(
                         fix()
                             .replace()
@@ -288,13 +228,16 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
     // field and one or two methods. We need to consider the
     // accessor method's visibility also. These are synthetic in Kotlin's
     // case, so the methods don't appear in `declaration.methods`.
+    // There may be a more robust PSI approach to this method, but it would
+    // likely require Kotlin and Java-specific implementations and this
+    // seems to work well enough.
     private val UField.isVisibleOrHasVisibleAccessor: Boolean
         get() {
             val getter = getContainingUClass()?.methods?.find { method ->
                 method.name == "get${name.capitalizeAsciiOnly()}"
             }
 
-            return LEAKY_VISIBILITY.contains(getter?.visibility ?: visibility)
+            return (getter?.visibility ?: visibility).isLeaky
         }
 
     private fun JavaEvaluator.isCoroutineScope(type: PsiType?): Boolean {
@@ -388,6 +331,9 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             }
         } to superTypeEntry
     }
+
+    private val UastVisibility.isLeaky: Boolean
+        get() = LEAKY_VISIBILITY.contains(this)
 
     companion object {
         private const val MESSAGE = "Consider scopes provided by the class."
