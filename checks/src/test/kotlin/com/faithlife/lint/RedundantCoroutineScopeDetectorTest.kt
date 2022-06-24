@@ -546,10 +546,12 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         ).run()
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 8: Replace with viewLifecycleOwner.lifecycleScope:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 8: Delete CoroutineScope member:
 @@ -8 +8
 -     private val scope = CoroutineScopeBase()
-+     private val scope = viewLifecycleOwner.lifecycleScope"""
+@@ -11 +10
+-         scope.launch {
++         viewLifecycleOwner.lifecycleScope.launch {"""
         )
     }
 
@@ -581,10 +583,12 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         ).run()
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace with viewLifecycleOwner.lifecycleScope:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
 @@ -7 +7
 -     private val scope = CoroutineScopeBase()
-+     private val scope = viewLifecycleOwner.lifecycleScope"""
+@@ -10 +9
+-         scope.apply {
++         viewLifecycleOwner.lifecycleScope.apply {"""
         )
     }
 
@@ -651,10 +655,12 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         ).run()
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace with viewLifecycleOwner.lifecycleScope:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
 @@ -7 +7
 -     private val scope = CoroutineScopeBase()
-+     private val scope = viewLifecycleOwner.lifecycleScope"""
+@@ -10 +9
+-         with(scope) {
++         with(viewLifecycleOwner.lifecycleScope) {"""
         )
     }
 
