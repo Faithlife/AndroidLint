@@ -556,7 +556,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
     }
 
     @Test
-    fun `test fix alias property with androidx-provided coroutine scope`() {
+    fun `test fix property with androidx-provided coroutine scope`() {
         val problematicCode = """
             package com.faithlife
 
@@ -760,6 +760,42 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
 +         viewLifecycleOwner.lifecycleScope.apply {
 @@ -17 +16
 -             scope.launch {}
++             viewLifecycleOwner.lifecycleScope.launch {}"""
+        )
+    }
+
+    @Test
+    fun `test fix coroutine builder with implicit receiver via outer class`() {
+        val problematicCode = """
+            package com.faithlife
+
+            import androidx.fragment.app.Fragment
+            import kotlinx.coroutines.CoroutineScope
+            import kotlinx.coroutines.launch
+
+            class ProfileFragment : Fragment(), CoroutineScope {
+                inner class Adapter {
+                    fun adapt() {
+                        launch {}
+                    }
+                }
+            }
+        """.trimIndent()
+
+        val result = lint().files(
+            java(FRAGMENT_JAVA_STUB),
+            java(LIFECYCLE_JAVA_STUB),
+            kotlin(COROUTINE_SCOPE_KT_STUB),
+            kotlin(problematicCode),
+        ).run()
+
+        result.expectFixDiffs(
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope supertype:
+@@ -7 +7
+- class ProfileFragment : Fragment(), CoroutineScope {
++ class ProfileFragment : Fragment() {
+@@ -10 +10
+-             launch {}
 +             viewLifecycleOwner.lifecycleScope.launch {}"""
         )
     }

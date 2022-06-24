@@ -25,7 +25,6 @@ import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
-import org.jetbrains.uast.UElement
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UastVisibility
 import org.jetbrains.uast.getContainingUClass
@@ -66,7 +65,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
         for (field in declaration.fields.filter { context.evaluator.isCoroutineScope(it.type) }) {
             val coroutineScopeCallSiteFixes = mutableListOf<LintFix>()
 
-            val tracker = object : AbstractUastVisitor() {
+            val referenceExpressionVisitor = object : AbstractUastVisitor() {
                 override fun visitSimpleNameReferenceExpression(
                     node: USimpleNameReferenceExpression
                 ): Boolean {
@@ -93,7 +92,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 declaration.innerClasses.flatMap { it.methods.asIterable() }
 
             for (method in methodsWithAccessToField) {
-                method.accept(tracker)
+                method.accept(referenceExpressionVisitor)
             }
 
             Incident(context)
@@ -171,7 +170,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                     }
 
                     // Only consider calls that use the current class as the receiver
-                    if (node.receiverType != context.evaluator.getClassType(containingClass)) {
+                    if (node.receiverType != context.evaluator.getClassType(declaration)) {
                         return false
                     }
 
@@ -193,7 +192,10 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 }
             }
 
-            for (method in declaration.methods) {
+            val methodsWithAccessToField = declaration.methods +
+                declaration.innerClasses.flatMap { it.methods.asIterable() }
+
+            for (method in methodsWithAccessToField) {
                 method.accept(callVisitor)
             }
 
