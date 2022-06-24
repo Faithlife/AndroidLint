@@ -37,6 +37,7 @@ import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.getIoFile
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import java.util.EnumSet
+import org.jetbrains.uast.USimpleNameReferenceExpression
 
 @Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
@@ -48,98 +49,24 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
     )
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
-        val coroutineScopeCallSiteFixes = mutableListOf<LintFix>()
+
         val providedCoroutineScope = context.evaluator.providedCoroutineScope(declaration) ?: return
-        val callVisitor = object : AbstractUastVisitor() {
-            override fun visitCallExpression(node: UCallExpression): Boolean {
-                val methodName = node.methodName ?: return false
 
-                if (methodName !in setOf("async", "launch")) {
-                    return false
-                }
-
-                // Only consider kotlinx.coroutines.launch and kotlinx.coroutines.async
-                if (!context.evaluator.isCoroutineScope(node.receiverType)) {
-                    return false
-                }
-
-                val containingClass = checkNotNull(node.getContainingUClass()) {
-                    "A method call must happen within a class' members."
-                }
-
-                // Only consider calls that use the current class as the receiver
-                if (node.receiverType != context.evaluator.getClassType(containingClass)) {
-                    return false
-                }
-
-                val callLocation = context.getCallLocation(
-                    node,
-                    includeReceiver = true,
-                    includeArguments = false
-                )
-
-                coroutineScopeCallSiteFixes.add(
-                    fix().replace()
-                        .range(callLocation)
-                        .with("$providedCoroutineScope.$methodName")
-                        .build()
-                )
-
-                return true
-            }
-        }
-
-        for (method in declaration.methods) {
-            method.accept(callVisitor)
-        }
-
-        // If the class inherits CoroutineScope, suggest alternatives.
-        val info = context.determineCoroutineScopeSuperTypePosition(declaration)
-        if (info != null) {
-            val (location, entry) = info
-
-            val coroutineScopeClass = context.evaluator
-                .findClass("kotlinx.coroutines.CoroutineScope")
-
-            // Cleanup all the overrides
-            val coroutineScopeOverrides = declaration.methods
-                .filter { it.findSuperMethods(coroutineScopeClass).isNotEmpty() }
-
-            val coroutineScopeOverridesFixes = coroutineScopeOverrides.map { method ->
-                val methodPsi = method.sourcePsi
-                val element = if (methodPsi is KtPropertyAccessor) {
-                    // Delete the whole property, not just the accessor
-                    methodPsi.getParentOfType<KtProperty>(false)
-                } else {
-                    method
-                } as PsiElement
-
-                fix().replace()
-                    .range(context.getLocation(element))
-                    .with("")
-                    .build()
-            }
-
-            context.report(
-                issue = ISSUE,
-                scope = entry as PsiElement,
-                location = context.getLocation(entry as PsiElement),
-                message = MESSAGE,
-                fix().composite(
-                    fix().replace()
-                        .name("Delete CoroutineScope supertype")
-                        .range(location)
-                        .with("")
-                        .reformat(true)
-                        .build(),
-                    *(coroutineScopeOverridesFixes + coroutineScopeCallSiteFixes).toTypedArray(),
-                )
-            )
-        }
+        detectSuperType(context, declaration, providedCoroutineScope)
 
         // If the class declares fields that implement CoroutineScope or
         // extends a CoroutineScope implementation, suggest alternatives
+        detectPrivateMembers(context, declaration, providedCoroutineScope)
+    }
+
+    private fun detectPrivateMembers(
+        context: JavaContext,
+        declaration: UClass,
+        providedCoroutineScope: String,
+    ) {
         for (field in declaration.fields.filter { context.evaluator.isCoroutineScope(it.type) }) {
+            val coroutineScopeCallSiteFixes = mutableListOf<LintFix>()
+
             // The data flow analyzer doesn't work on synthetic methods because they don't have a
             // body in the UAST representation. They need to be checked separately.
             var canFixWithoutBreakingInterface = !field.isVisibleOrHasVisibleAccessor
@@ -160,6 +87,24 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                     if (type != null) {
                         types.add(type)
                     }
+                }
+
+                override fun receiver(call: UCallExpression) {
+                    if ((call.receiver as? USimpleNameReferenceExpression)?.resolve() != field.javaPsi) return
+
+                    val callLocation = context.getCallLocation(
+                        call,
+                        includeReceiver = true,
+                        includeArguments = false
+                    )
+
+                    coroutineScopeCallSiteFixes.add(
+                        fix().replace()
+                            .range(callLocation)
+                            .with("$providedCoroutineScope.${call.methodName}")
+                            .reformat(true)
+                            .build()
+                    )
                 }
 
                 override fun field(field: UElement) {
@@ -184,6 +129,8 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 }
 
                 override fun argument(call: UCallExpression, reference: UElement) {
+                    if ((reference as? USimpleNameReferenceExpression)?.resolve() != field.javaPsi) return
+
                     val definition = checkNotNull(call.resolve())
 
                     val cls = checkNotNull(definition.containingClass) {
@@ -193,6 +140,16 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                     // StandardKt functions are common and known to be pure
                     canFixWithoutBreakingInterface = cls == declaration ||
                         cls.qualifiedName == "kotlin.StandardKt__StandardKt"
+
+                    if (!canFixWithoutBreakingInterface) return
+
+                    coroutineScopeCallSiteFixes.add(
+                        fix().replace()
+                            .range(context.getLocation(reference))
+                            .with(providedCoroutineScope)
+                            .reformat(true)
+                            .build()
+                    )
                 }
             }
 
@@ -213,19 +170,116 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 location = context.getLocation(element = field),
                 message = MESSAGE,
                 if (canFixWithoutBreakingInterface && initializer != null) {
-                    fix().composite(
+                    fix().name("Delete CoroutineScope member").composite(
                         fix()
                             .replace()
-                            .sharedName(ISSUE_FIX_FAMILY)
+                            .range(context.getLocation(field))
+                            .with("")
                             .reformat(true)
-                            .range(context.getLocation(initializer))
-                            .with(providedCoroutineScope)
                             .build(),
                         *coroutineScopeCallSiteFixes.toTypedArray()
                     )
                 } else {
                     null
                 }
+            )
+        }
+    }
+
+    private fun detectSuperType(
+        context: JavaContext,
+        declaration: UClass,
+        providedCoroutineScope: String,
+    ) {
+        // If the class inherits CoroutineScope, suggest alternatives.
+        val info = context.determineCoroutineScopeSuperTypePosition(declaration)
+        if (info != null) {
+            val (location, entry) = info
+
+            val coroutineScopeClass = context.evaluator
+                .findClass("kotlinx.coroutines.CoroutineScope")
+
+            // Cleanup all the overrides
+            val coroutineScopeOverrides = declaration.methods
+                .filter { it.findSuperMethods(coroutineScopeClass).isNotEmpty() }
+
+            val coroutineScopeOverridesFixes = coroutineScopeOverrides.map { method ->
+                val methodPsi = method.sourcePsi
+                val element = if (methodPsi is KtPropertyAccessor) {
+                    // Delete the whole property, not just the accessor
+                    methodPsi.getParentOfType<KtProperty>(false)
+                } else {
+                    method
+                } as PsiElement
+
+                fix().replace()
+                    .range(context.getLocation(element))
+                    .with("")
+                    .reformat(true)
+                    .build()
+            }
+
+            // Cleanup the field references
+            val coroutineScopeCallSiteFixes = mutableListOf<LintFix>()
+            val callVisitor = object : AbstractUastVisitor() {
+                override fun visitCallExpression(node: UCallExpression): Boolean {
+                    val methodName = node.methodName ?: return false
+
+                    if (methodName !in setOf("async", "launch")) {
+                        return false
+                    }
+
+                    // Only consider kotlinx.coroutines.launch and kotlinx.coroutines.async
+                    if (!context.evaluator.isCoroutineScope(node.receiverType)) {
+                        return false
+                    }
+
+                    val containingClass = checkNotNull(node.getContainingUClass()) {
+                        "A method call must happen within a class' members."
+                    }
+
+
+                    // Only consider calls that use the current class as the receiver
+                    if (node.receiverType != context.evaluator.getClassType(containingClass)) {
+                        return false
+                    }
+
+                    val callLocation = context.getCallLocation(
+                        node,
+                        includeReceiver = true,
+                        includeArguments = false
+                    )
+
+                    coroutineScopeCallSiteFixes.add(
+                        fix().replace()
+                            .range(callLocation)
+                            .with("$providedCoroutineScope.$methodName")
+                            .reformat(true)
+                            .build()
+                    )
+
+                    return true
+                }
+            }
+
+            for (method in declaration.methods) {
+                method.accept(callVisitor)
+            }
+
+
+            context.report(
+                issue = ISSUE,
+                scope = entry as PsiElement,
+                location = context.getLocation(entry as PsiElement),
+                message = MESSAGE,
+                fix().name("Delete CoroutineScope supertype").composite(
+                    fix().replace()
+                        .range(location)
+                        .with("")
+                        .reformat(true)
+                        .build(),
+                    *(coroutineScopeOverridesFixes + coroutineScopeCallSiteFixes).toTypedArray(),
+                )
             )
         }
     }
@@ -336,7 +390,6 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        private const val ISSUE_FIX_FAMILY = "RedundantCoroutineScopeFix"
         private const val MESSAGE = "Consider scopes provided by the class."
 
         private val LEAKY_VISIBILITY = EnumSet.of(
