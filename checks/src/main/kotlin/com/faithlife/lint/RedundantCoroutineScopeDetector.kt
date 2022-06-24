@@ -1,6 +1,5 @@
 package com.faithlife.lint
 
-import com.android.tools.lint.checks.DataFlowAnalyzer
 import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -14,14 +13,8 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiExpression
-import com.intellij.psi.PsiField
-import com.intellij.psi.PsiReference
-import com.intellij.psi.PsiReferenceExpression
 import com.intellij.psi.PsiType
-import com.intellij.psi.PsiVariable
 import com.intellij.psi.PsiWhiteSpace
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
@@ -34,17 +27,14 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UField
-import org.jetbrains.uast.UReturnExpression
+import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UastVisibility
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUFile
 import org.jetbrains.uast.getIoFile
+import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 import java.util.EnumSet
-import org.jetbrains.uast.UBinaryExpression
-import org.jetbrains.uast.ULocalVariable
-import org.jetbrains.uast.USimpleNameReferenceExpression
-import org.jetbrains.uast.toUElement
 
 @Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
@@ -178,7 +168,6 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                         "A method call must happen within a class' members."
                     }
 
-
                     // Only consider calls that use the current class as the receiver
                     if (node.receiverType != context.evaluator.getClassType(containingClass)) {
                         return false
@@ -205,7 +194,6 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             for (method in declaration.methods) {
                 method.accept(callVisitor)
             }
-
 
             context.report(
                 issue = ISSUE,

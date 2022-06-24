@@ -699,12 +699,14 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings"""
         )
-        result.expectFixDiffs("""Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+        result.expectFixDiffs(
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
 @@ -7 +7
 -     val scope = CoroutineScopeBase()
 @@ -10 +9
 -         scope.apply {
-+         viewLifecycleOwner.lifecycleScope.apply {""")
++         viewLifecycleOwner.lifecycleScope.apply {"""
+        )
     }
 
     @Test
@@ -742,12 +744,14 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings"""
         )
-        result.expectFixDiffs("""Fix for src/com/faithlife/ProfileFragment.kt line 8: Delete CoroutineScope member:
+        result.expectFixDiffs(
+            """Fix for src/com/faithlife/ProfileFragment.kt line 8: Delete CoroutineScope member:
 @@ -8 +8
 -     private val scope = CoroutineScopeBase()
 @@ -11 +10
 -         val itTracksAssignment = scope
-+         val itTracksAssignment = viewLifecycleOwner.lifecycleScope""")
++         val itTracksAssignment = viewLifecycleOwner.lifecycleScope"""
+        )
     }
 
     @Test
@@ -787,12 +791,14 @@ src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 2 warnings"""
         )
-        result.expectFixDiffs("""Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+        result.expectFixDiffs(
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
 @@ -7 +7
 -     private val scope = CoroutineScopeBase()
 @@ -11 +10
 -         sneakyScope = scope
-+         sneakyScope = viewLifecycleOwner.lifecycleScope""")
++         sneakyScope = viewLifecycleOwner.lifecycleScope"""
+        )
     }
 
     private companion object {
