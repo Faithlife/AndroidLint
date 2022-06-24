@@ -3,20 +3,17 @@ package com.faithlife.lint
 import com.android.tools.lint.checks.DataFlowAnalyzer
 import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.Category
-import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
-import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
-import com.android.tools.lint.detector.api.LintMap
+import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiType
 import com.intellij.psi.PsiVariable
 import com.intellij.psi.PsiWhiteSpace
@@ -38,48 +35,11 @@ import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUFile
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.getIoFile
+import org.jetbrains.uast.visitor.AbstractUastVisitor
 import java.util.EnumSet
 
 @Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames(): List<String> = listOf("launch", "async")
-
-    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        val methodName = node.methodName ?: return
-
-        // Only consider kotlinx.coroutines.launch and kotlinx.coroutines.async
-        if (!context.evaluator.isCoroutineScope(node.receiverType)) return
-
-        val containingClass = checkNotNull(node.getContainingUClass()) {
-            "A method call must happen within a class' members."
-        }
-
-        // Only consider method calls with a receiver which has an associated coroutine scope
-        val providedCoroutineScope = context.evaluator
-            .providedCoroutineScope(node.receiverType) ?: return
-
-        // Only consider calls that use the current class as the receiver
-        if (node.receiverType != context.evaluator.getClassType(containingClass)) return
-
-        val callLocation = context.getCallLocation(
-            node,
-            includeReceiver = true,
-            includeArguments = false
-        )
-
-        context.report(
-            issue = ISSUE,
-            scope = node as UElement,
-            location = callLocation,
-            message = MESSAGE,
-            fix().replace()
-                .sharedName(ISSUE_FIX_FAMILY)
-                .range(callLocation)
-                .with("$providedCoroutineScope.$methodName")
-                .build()
-        )
-    }
-
     override fun applicableSuperClasses(): List<String> = listOf(
         "androidx.fragment.app.Fragment",
         "androidx.lifecycle.LifecycleOwner",
@@ -88,6 +48,51 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
     )
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
+        val coroutineScopeCallSiteFixes = mutableListOf<LintFix>()
+        val providedCoroutineScope = context.evaluator.providedCoroutineScope(declaration) ?: return
+        val callVisitor = object : AbstractUastVisitor() {
+            override fun visitCallExpression(node: UCallExpression): Boolean {
+                val methodName = node.methodName ?: return false
+
+                if (methodName !in setOf("async", "launch")) {
+                    return false
+                }
+
+                // Only consider kotlinx.coroutines.launch and kotlinx.coroutines.async
+                if (!context.evaluator.isCoroutineScope(node.receiverType)) {
+                    return false
+                }
+
+                val containingClass = checkNotNull(node.getContainingUClass()) {
+                    "A method call must happen within a class' members."
+                }
+
+                // Only consider calls that use the current class as the receiver
+                if (node.receiverType != context.evaluator.getClassType(containingClass)) {
+                    return false
+                }
+
+                val callLocation = context.getCallLocation(
+                    node,
+                    includeReceiver = true,
+                    includeArguments = false
+                )
+
+                coroutineScopeCallSiteFixes.add(
+                    fix().replace()
+                        .range(callLocation)
+                        .with("$providedCoroutineScope.$methodName")
+                        .build()
+                )
+
+                return true
+            }
+        }
+
+        for (method in declaration.methods) {
+            method.accept(callVisitor)
+        }
+
         // If the class inherits CoroutineScope, suggest alternatives.
         val info = context.determineCoroutineScopeSuperTypePosition(declaration)
         if (info != null) {
@@ -122,18 +127,18 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 message = MESSAGE,
                 fix().composite(
                     fix().replace()
+                        .name("Delete CoroutineScope supertype")
                         .range(location)
                         .with("")
                         .reformat(true)
                         .build(),
-                    *coroutineScopeOverridesFixes.toTypedArray()
+                    *(coroutineScopeOverridesFixes + coroutineScopeCallSiteFixes).toTypedArray(),
                 )
             )
         }
 
         // If the class declares fields that implement CoroutineScope or
         // extends a CoroutineScope implementation, suggest alternatives
-        val providedCoroutineScope = context.evaluator.providedCoroutineScope(declaration) ?: return
         for (field in declaration.fields.filter { context.evaluator.isCoroutineScope(it.type) }) {
             // The data flow analyzer doesn't work on synthetic methods because they don't have a
             // body in the UAST representation. They need to be checked separately.
@@ -208,13 +213,16 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 location = context.getLocation(element = field),
                 message = MESSAGE,
                 if (canFixWithoutBreakingInterface && initializer != null) {
-                    fix()
-                        .replace()
-                        .sharedName(ISSUE_FIX_FAMILY)
-                        .reformat(true)
-                        .range(context.getLocation(initializer))
-                        .with(providedCoroutineScope)
-                        .build()
+                    fix().composite(
+                        fix()
+                            .replace()
+                            .sharedName(ISSUE_FIX_FAMILY)
+                            .reformat(true)
+                            .range(context.getLocation(initializer))
+                            .with(providedCoroutineScope)
+                            .build(),
+                        *coroutineScopeCallSiteFixes.toTypedArray()
+                    )
                 } else {
                     null
                 }
@@ -325,10 +333,6 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 Location.create(file, getLocation(superTypeEntry).start!!, end.end)
             }
         } to superTypeEntry
-    }
-
-    private fun JavaEvaluator.providedCoroutineScope(type: PsiType?): String? {
-        return providedCoroutineScope(getTypeClass(type))
     }
 
     companion object {
