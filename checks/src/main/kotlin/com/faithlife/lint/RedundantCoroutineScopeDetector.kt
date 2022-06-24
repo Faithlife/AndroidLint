@@ -165,10 +165,6 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                         return false
                     }
 
-                    val containingClass = checkNotNull(node.getContainingUClass()) {
-                        "A method call must happen within a class' members."
-                    }
-
                     // Only consider calls that use the current class as the receiver
                     if (node.receiverType != context.evaluator.getClassType(declaration)) {
                         return false
