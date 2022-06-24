@@ -22,11 +22,9 @@ import org.jetbrains.kotlin.psi.KtSuperTypeList
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
-import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
-import org.jetbrains.uast.UField
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UastVisibility
 import org.jetbrains.uast.getContainingUClass
@@ -90,7 +88,10 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 }
             }
 
-            for (method in declaration.methods) {
+            val methodsWithAccessToField = declaration.methods +
+                declaration.innerClasses.flatMap { it.methods.asIterable() }
+
+            for (method in methodsWithAccessToField) {
                 method.accept(tracker)
             }
 
@@ -211,22 +212,6 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             )
         }
     }
-
-    // Since Kotlin properties (and Java Beans) are comprised of a
-    // field and one or two methods. We need to consider the
-    // accessor method's visibility also. These are synthetic in Kotlin's
-    // case, so the methods don't appear in `declaration.methods`.
-    // There may be a more robust PSI approach to this method, but it would
-    // likely require Kotlin and Java-specific implementations and this
-    // seems to work well enough.
-    private val UField.isVisibleOrHasVisibleAccessor: Boolean
-        get() {
-            val getter = getContainingUClass()?.methods?.find { method ->
-                method.name == "get${name.capitalizeAsciiOnly()}"
-            }
-
-            return (getter?.visibility ?: visibility).isLeaky
-        }
 
     private fun JavaEvaluator.isCoroutineScope(type: PsiType?): Boolean {
         val cls = getTypeClass(type) ?: return false

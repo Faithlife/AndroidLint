@@ -710,6 +710,61 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
     }
 
     @Test
+    fun `test inner class CoroutineScope property is changed`() {
+        // A property has synthetic accessors, which are represented
+        // distinct from UFields in UAST.
+        val problematicCodeWithoutEasyFix = """
+            package com.faithlife
+
+            import androidx.fragment.app.Fragment
+            import kotlinx.coroutines.launch
+
+            class ProfileFragment : Fragment() {
+                val scope = CoroutineScopeBase()
+                override fun onCreate(savedInstanceState: Bundle?) {
+                    super.onCreate(savedInstanceState)
+                    scope.apply {
+                        launch { }
+                    }
+                }
+
+                inner class Adapter {
+                    fun adapt() {
+                        scope.launch {}
+                    }
+                }
+            }
+        """.trimIndent()
+
+        val result = lint().files(
+            kotlin(COROUTINE_SCOPE_KT_STUB),
+            kotlin(COROUTINE_SCOPE_IMPL_KT_STUB),
+            java(LIFECYCLE_JAVA_STUB),
+            java(FRAGMENT_JAVA_STUB),
+            kotlin(problematicCodeWithoutEasyFix),
+        ).run()
+
+        result.expect(
+            """src/com/faithlife/ProfileFragment.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
+    val scope = CoroutineScopeBase()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+0 errors, 1 warnings"""
+        )
+
+        result.expectFixDiffs(
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+@@ -7 +7
+-     val scope = CoroutineScopeBase()
+@@ -10 +9
+-         scope.apply {
++         viewLifecycleOwner.lifecycleScope.apply {
+@@ -17 +16
+-             scope.launch {}
++             viewLifecycleOwner.lifecycleScope.launch {}"""
+        )
+    }
+
+    @Test
     fun `test rvalue is changed in local variable assignment`() {
         // A property has synthetic accessors, which are represented
         // distinct from UFields in UAST.
