@@ -4,6 +4,7 @@ import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.LintFix
@@ -95,25 +96,25 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 method.accept(tracker)
             }
 
-            context.report(
-                issue = ISSUE,
-                scope = field as UElement,
-                location = context.getLocation(element = field),
-                message = MESSAGE,
-                if (field.uastInitializer != null) {
-                    fix().name("Delete CoroutineScope member").composite(
-                        fix()
-                            .replace()
-                            .range(context.getLocation(field))
-                            .with("")
-                            .reformat(true)
-                            .build(),
-                        *coroutineScopeCallSiteFixes.toTypedArray()
-                    )
-                } else {
-                    null
-                }
-            )
+            Incident(context)
+                .issue(ISSUE)
+                .at(field)
+                .message(MESSAGE)
+                .fix(
+                    if (field.uastInitializer != null) {
+                        fix().name("Delete CoroutineScope member").composite(
+                            fix()
+                                .replace()
+                                .range(context.getLocation(field))
+                                .with("")
+                                .reformat(true)
+                                .build(),
+                            *coroutineScopeCallSiteFixes.toTypedArray()
+                        )
+                    } else {
+                        null
+                    }
+                ).report()
         }
     }
 
@@ -196,20 +197,20 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 method.accept(callVisitor)
             }
 
-            context.report(
-                issue = ISSUE,
-                scope = entry as PsiElement,
-                location = context.getLocation(entry as PsiElement),
-                message = MESSAGE,
-                fix().name("Delete CoroutineScope supertype").composite(
-                    fix().replace()
-                        .range(location)
-                        .with("")
-                        .reformat(true)
-                        .build(),
-                    *(coroutineScopeOverridesFixes + coroutineScopeCallSiteFixes).toTypedArray(),
-                )
-            )
+            Incident(context)
+                .issue(ISSUE)
+                .at(entry)
+                .message(MESSAGE)
+                .fix(
+                    fix().name("Delete CoroutineScope supertype").composite(
+                        fix().replace()
+                            .range(location)
+                            .with("")
+                            .reformat(true)
+                            .build(),
+                        *(coroutineScopeOverridesFixes + coroutineScopeCallSiteFixes).toTypedArray()
+                    )
+                ).report()
         }
     }
 
