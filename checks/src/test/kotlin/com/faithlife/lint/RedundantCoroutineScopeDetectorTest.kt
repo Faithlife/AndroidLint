@@ -139,35 +139,6 @@ class ProfileFragment : CoroutineScopeBase(), LifecycleOwner
     }
 
     @Test
-    fun `test all fields are checked for CoroutineScope types`() {
-        val problematicCode = """
-            package com.faithlife
-
-            import androidx.lifecycle.LifecycleOwner
-            import com.faithlife.CoroutineScopeBase
-
-            class ProfileFragment : LifecycleOwner {
-                private val aConstant = 42
-                private val scope = CoroutineScopeBase()
-            }
-        """.trimIndent()
-
-        val result = lint().files(
-            java(LIFECYCLE_JAVA_STUB),
-            kotlin(COROUTINE_SCOPE_IMPL_KT_STUB),
-            kotlin(COROUTINE_SCOPE_KT_STUB),
-            kotlin(problematicCode),
-        ).run()
-
-        result.expect(
-            """src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
-    private val scope = CoroutineScopeBase()
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
-        )
-    }
-
-    @Test
     fun `test ViewModel should not implement CoroutineScope`() {
         val problematicCode = """
             package com.faithlife
@@ -270,6 +241,35 @@ class ProfileView : View(), CoroutineScope
     }
 
     @Test
+    fun `test all fields are checked for CoroutineScope types`() {
+        val problematicCode = """
+            package com.faithlife
+
+            import androidx.lifecycle.LifecycleOwner
+            import com.faithlife.CoroutineScopeBase
+
+            class ProfileFragment : LifecycleOwner {
+                private val aConstant = 42
+                private val scope = CoroutineScopeBase()
+            }
+        """.trimIndent()
+
+        val result = lint().files(
+            java(LIFECYCLE_JAVA_STUB),
+            kotlin(COROUTINE_SCOPE_IMPL_KT_STUB),
+            kotlin(COROUTINE_SCOPE_KT_STUB),
+            kotlin(problematicCode),
+        ).run()
+
+        result.expect(
+            """src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
+    private val scope = CoroutineScopeBase()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+0 errors, 1 warnings"""
+        )
+    }
+
+    @Test
     fun `test fix class extending a coroutine scope implementation`() {
         val problematicCode = """
             package com.faithlife
@@ -304,6 +304,39 @@ class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
 -     override val coroutineContext: CoroutineContext
 -         get() = object : CoroutineContext {}
 + class ProfileFragment : LifecycleOwner {"""
+        )
+    }
+
+    @Test
+    fun `test fix class implementing CoroutineScope`() {
+        val problematicCode = """
+            package com.faithlife
+
+            import androidx.lifecycle.LifecycleOwner
+            import kotlinx.coroutines.CoroutineScope
+
+            class ProfileFragment : CoroutineScope, LifecycleOwner
+        """.trimIndent()
+
+        val result = lint().files(
+            java(LIFECYCLE_JAVA_STUB),
+            kotlin(COROUTINE_SCOPE_KT_STUB),
+            kotlin(problematicCode),
+        ).run()
+
+        result.expect(
+            """src/com/faithlife/ProfileFragment.kt:6: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
+class ProfileFragment : CoroutineScope, LifecycleOwner
+                        ~~~~~~~~~~~~~~
+0 errors, 1 warnings"""
+        )
+
+        result.expectFixDiffs(
+            """Fix for src/com/faithlife/ProfileFragment.kt line 6: Replace CoroutineScope implementation with lifecycleScope:
+@@ -6 +6
+- class ProfileFragment : CoroutineScope, LifecycleOwner
+@@ -7 +6
++ class ProfileFragment : LifecycleOwner"""
         )
     }
 
@@ -361,7 +394,7 @@ Fix for src/com/faithlife/ALifecycleOwner.kt line 11: Replace CoroutineScope imp
     }
 
     @Test
-    fun `test fix remove last super type ctor call`() {
+    fun `test fix remove last super type constructor call`() {
         val coroutineScopeBaseWithArgs = """
             package com.faithlife
 
@@ -402,7 +435,7 @@ class ProfileFragment : LifecycleOwner, CoroutineScopeBase(-123, {})
     }
 
     @Test
-    fun `test fix remove first super type ctor call`() {
+    fun `test fix remove first super type constructor call`() {
         val coroutineScopeBaseWithArgs = """
             package com.faithlife
 
@@ -443,7 +476,7 @@ class ProfileFragment : CoroutineScopeBase(-123, {}), LifecycleOwner
     }
 
     @Test
-    fun `test fix remove middle super type ctor call`() {
+    fun `test fix remove middle super type constructor call`() {
         val coroutineScopeBaseWithArgs = """
             package com.faithlife
 
@@ -482,39 +515,6 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 - class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwner
 @@ -8 +7
 + class ProfileFragment : AnInterface, LifecycleOwner"""
-        )
-    }
-
-    @Test
-    fun `test fix class implementing CoroutineScope`() {
-        val problematicCode = """
-            package com.faithlife
-
-            import androidx.lifecycle.LifecycleOwner
-            import kotlinx.coroutines.CoroutineScope
-
-            class ProfileFragment : CoroutineScope, LifecycleOwner
-        """.trimIndent()
-
-        val result = lint().files(
-            java(LIFECYCLE_JAVA_STUB),
-            kotlin(COROUTINE_SCOPE_KT_STUB),
-            kotlin(problematicCode),
-        ).run()
-
-        result.expect(
-            """src/com/faithlife/ProfileFragment.kt:6: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
-class ProfileFragment : CoroutineScope, LifecycleOwner
-                        ~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
-        )
-
-        result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 6: Replace CoroutineScope implementation with lifecycleScope:
-@@ -6 +6
-- class ProfileFragment : CoroutineScope, LifecycleOwner
-@@ -7 +6
-+ class ProfileFragment : LifecycleOwner"""
         )
     }
 
