@@ -298,7 +298,7 @@ class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
         )
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 6: Delete CoroutineScope supertype:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 6: Replace CoroutineScope implementation with lifecycleScope:
 @@ -6 +6
 - class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
 -     override val coroutineContext: CoroutineContext
@@ -346,11 +346,11 @@ class ProfileFragment : ALifecycleOwner {
         )
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ALifecycleOwner.kt line 7: Delete CoroutineScope supertype:
+            """Fix for src/com/faithlife/ALifecycleOwner.kt line 7: Replace CoroutineScope implementation with lifecycleScope:
 @@ -7 +7
 - interface ALifecycleOwner : CoroutineScope, LifecycleOwner {
 + interface ALifecycleOwner : LifecycleOwner {
-Fix for src/com/faithlife/ALifecycleOwner.kt line 11: Delete CoroutineScope supertype:
+Fix for src/com/faithlife/ALifecycleOwner.kt line 11: Replace CoroutineScope implementation with lifecycleScope:
 @@ -11 +11
 - class ProfileFragment : ALifecycleOwner {
 + class ProfileFragment {
@@ -393,7 +393,7 @@ class ProfileFragment : LifecycleOwner, CoroutineScopeBase(-123, {})
         )
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 5: Delete CoroutineScope supertype:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 5: Replace CoroutineScope implementation with lifecycleScope:
 @@ -5 +5
 - class ProfileFragment : LifecycleOwner, CoroutineScopeBase(-123, {})
 @@ -6 +5
@@ -434,7 +434,7 @@ class ProfileFragment : CoroutineScopeBase(-123, {}), LifecycleOwner
         )
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 5: Delete CoroutineScope supertype:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 5: Replace CoroutineScope implementation with lifecycleScope:
 @@ -5 +5
 - class ProfileFragment : CoroutineScopeBase(-123, {}), LifecycleOwner
 @@ -6 +5
@@ -477,7 +477,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
         )
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/AnInterface.kt line 7: Delete CoroutineScope supertype:
+            """Fix for src/com/faithlife/AnInterface.kt line 7: Replace CoroutineScope implementation with lifecycleScope:
 @@ -7 +7
 - class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwner
 @@ -8 +7
@@ -510,7 +510,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         )
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 6: Delete CoroutineScope supertype:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 6: Replace CoroutineScope implementation with lifecycleScope:
 @@ -6 +6
 - class ProfileFragment : CoroutineScope, LifecycleOwner
 @@ -7 +6
@@ -546,7 +546,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         ).run()
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 8: Delete CoroutineScope member:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 8: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
 @@ -8 +8
 -     private val scope = CoroutineScopeBase()
 @@ -11 +10
@@ -583,7 +583,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         ).run()
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
 @@ -7 +7
 -     private val scope = CoroutineScopeBase()
 @@ -10 +9
@@ -617,7 +617,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         ).run()
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope supertype:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope implementation with viewLifecycleOwner.lifecycleScope:
 @@ -7 +7
 - class ProfileFragment : Fragment(), CoroutineScope {
 + class ProfileFragment : Fragment() {
@@ -655,7 +655,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         ).run()
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
 @@ -7 +7
 -     private val scope = CoroutineScopeBase()
 @@ -10 +9
@@ -700,7 +700,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
 0 errors, 1 warnings"""
         )
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
 @@ -7 +7
 -     val scope = CoroutineScopeBase()
 @@ -10 +9
@@ -752,7 +752,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         )
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
 @@ -7 +7
 -     val scope = CoroutineScopeBase()
 @@ -10 +9
@@ -790,7 +790,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
         ).run()
 
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope supertype:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope implementation with viewLifecycleOwner.lifecycleScope:
 @@ -7 +7
 - class ProfileFragment : Fragment(), CoroutineScope {
 + class ProfileFragment : Fragment() {
@@ -836,7 +836,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
 0 errors, 1 warnings"""
         )
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 8: Delete CoroutineScope member:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 8: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
 @@ -8 +8
 -     private val scope = CoroutineScopeBase()
 @@ -11 +10
@@ -883,7 +883,7 @@ src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the
 0 errors, 2 warnings"""
         )
         result.expectFixDiffs(
-            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Delete CoroutineScope member:
+            """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
 @@ -7 +7
 -     private val scope = CoroutineScopeBase()
 @@ -11 +10

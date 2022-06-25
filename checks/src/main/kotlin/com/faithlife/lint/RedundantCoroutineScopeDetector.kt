@@ -94,13 +94,15 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 method.accept(referenceExpressionVisitor)
             }
 
+            val fixMessage = "Replace CoroutineScope property with $providedCoroutineScope"
+
             Incident(context)
                 .issue(ISSUE)
                 .at(field)
                 .message(MESSAGE)
                 .fix(
                     if (field.uastInitializer != null) {
-                        fix().name("Delete CoroutineScope member").composite(
+                        fix().name(fixMessage).composite(
                             fix()
                                 .replace()
                                 .range(context.getLocation(field))
@@ -194,12 +196,14 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 method.accept(callVisitor)
             }
 
+            val fixMessage = "Replace CoroutineScope implementation with $providedCoroutineScope"
+
             Incident(context)
                 .issue(ISSUE)
                 .at(entry)
                 .message(MESSAGE)
                 .fix(
-                    fix().name("Delete CoroutineScope supertype").composite(
+                    fix().name(fixMessage).composite(
                         fix().replace()
                             .range(location)
                             .with("")
@@ -231,7 +235,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             implementsInterface(
                 psiClass,
                 "androidx.lifecycle.LifecycleOwner",
-            ) -> "viewLifecycleOwner"
+            ) -> "lifecycleScope"
             extendsClass(
                 psiClass,
                 "android.view.View",
