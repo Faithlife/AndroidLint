@@ -27,7 +27,6 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UastVisibility
-import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUFile
 import org.jetbrains.uast.getIoFile
 import org.jetbrains.uast.toUElement
