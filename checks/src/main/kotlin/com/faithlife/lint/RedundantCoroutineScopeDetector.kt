@@ -26,12 +26,10 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.USimpleNameReferenceExpression
-import org.jetbrains.uast.UastVisibility
 import org.jetbrains.uast.getContainingUFile
 import org.jetbrains.uast.getIoFile
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.visitor.AbstractUastVisitor
-import java.util.EnumSet
 
 @Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
@@ -307,17 +305,8 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
         } to superTypeEntry
     }
 
-    private val UastVisibility.isLeaky: Boolean
-        get() = LEAKY_VISIBILITY.contains(this)
-
     companion object {
         private const val MESSAGE = "Consider scopes provided by the class."
-
-        private val LEAKY_VISIBILITY = EnumSet.of(
-            UastVisibility.PROTECTED,
-            UastVisibility.PACKAGE_LOCAL,
-            UastVisibility.PUBLIC,
-        )
 
         val ISSUE = Issue.create(
             "RedundantCoroutineScopeDetector",
