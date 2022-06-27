@@ -142,10 +142,13 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                     method
                 } as PsiElement
 
+                // reformat(true) causes a crash in lint when a multi-line element is deleted.
+                // This is a workaround that should ideally be improved when the issue is addressed
+                // https://issuetracker.google.com/issues/237269263
                 fix().replace()
                     .range(context.getLocation(element))
+                    .all()
                     .with("")
-                    .reformat(true)
                     .build()
             }
 
@@ -175,11 +178,19 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                         includeArguments = false
                     )
 
+                    val coroutineScopeAccessor = if (providedCoroutineScope.contains('?')) {
+                        "$providedCoroutineScope?."
+                    } else {
+                        "$providedCoroutineScope."
+                    }
+
+                    // todo: auto import scope extension property handling
+                    //  (added in forthcoming lint api release)
                     coroutineScopeCallSiteFixes.add(
                         fix().replace()
                             .range(callLocation)
-                            .with("$providedCoroutineScope.$methodName")
-                            .reformat(true)
+                            .beginning()
+                            .with(coroutineScopeAccessor)
                             .build()
                     )
 
@@ -194,22 +205,24 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 method.accept(callVisitor)
             }
 
-            val fixMessage = "Replace CoroutineScope implementation with $providedCoroutineScope"
+            val fixes = coroutineScopeOverridesFixes + coroutineScopeCallSiteFixes + listOf(
+                fix().replace()
+                    .range(location)
+                    .all()
+                    .with("")
+                    .build()
+            )
+
+            val compositeFix = fix()
+                .name("Replace CoroutineScope implementation with $providedCoroutineScope")
+                .composite(*fixes.toTypedArray())
 
             Incident(context)
                 .issue(ISSUE)
                 .at(entry)
                 .message(MESSAGE)
-                .fix(
-                    fix().name(fixMessage).composite(
-                        fix().replace()
-                            .range(location)
-                            .with("")
-                            .reformat(true)
-                            .build(),
-                        *(coroutineScopeOverridesFixes + coroutineScopeCallSiteFixes).toTypedArray()
-                    )
-                ).report()
+                .fix(compositeFix)
+                .report()
         }
     }
 

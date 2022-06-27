@@ -275,7 +275,7 @@ class ProfileView : View(), CoroutineScope
             package com.faithlife
 
             import androidx.lifecycle.LifecycleOwner
-            import kotlinx.coroutines.CoroutineContext
+            import kotlin.coroutines.CoroutineContext
 
             class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
                 override val coroutineContext: CoroutineContext
@@ -346,7 +346,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
             package com.faithlife
 
             import androidx.lifecycle.LifecycleOwner
-            import kotlinx.coroutines.CoroutineContext
+            import kotlin.coroutines.CoroutineContext
             import kotlinx.coroutines.CoroutineScope
 
             interface ALifecycleOwner : CoroutineScope, LifecycleOwner {
@@ -896,10 +896,15 @@ src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the
         const val COROUTINE_SCOPE_KT_STUB = """
             package kotlinx.coroutines
 
-            interface CoroutineContext
+            class Job : kotlin.coroutines.CoroutineContext
+
+            enum class Dispatchers : kotlin.coroutines.CoroutineContext {
+                MAIN,
+                DEFAULT,
+            }
 
             interface CoroutineScope {
-                val coroutineContext: CoroutineContext
+                val coroutineContext: kotlin.coroutines.CoroutineContext
             }
 
             fun CoroutineScope.launch(block: suspend CoroutineScope.() -> Unit) {
@@ -910,7 +915,7 @@ src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the
         const val COROUTINE_SCOPE_IMPL_KT_STUB = """
             package com.faithlife
 
-            import kotlinx.coroutines.CoroutineContext
+            import kotlin.coroutines.CoroutineContext
             import kotlinx.coroutines.CoroutineScope
 
             abstract class CoroutineScopeBase : CoroutineScope {
