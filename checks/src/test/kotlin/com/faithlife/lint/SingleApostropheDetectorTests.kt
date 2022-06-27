@@ -22,7 +22,7 @@ class SingleApostropheDetectorTests : LintDetectorTest() {
         lint().files(xml("res/values/strings.xml", source))
             .run()
             .expect(
-                """res/values/strings.xml:1: Warning: Prefer unicode apostrophes. [UseUnicodeApostrophe]
+                """res/values/strings.xml:1: Warning: Prefer unicode apostrophes [UseUnicodeApostrophe]
                 |<string name="a_bad_string">ASCII's punctuation</string>
                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings
@@ -36,7 +36,7 @@ class SingleApostropheDetectorTests : LintDetectorTest() {
         lint().files(xml("res/values/strings.xml", source))
             .run()
             .expect(
-                """res/values/strings.xml:1: Warning: Prefer unicode apostrophes. [UseUnicodeApostrophe]
+                """res/values/strings.xml:1: Warning: Prefer unicode apostrophes [UseUnicodeApostrophe]
                 |<string name="a_bad_string">ASCIIs' punctuation</string>
                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings
@@ -50,7 +50,7 @@ class SingleApostropheDetectorTests : LintDetectorTest() {
         lint().files(xml("res/values/strings.xml", source))
             .run()
             .expect(
-                """res/values/strings.xml:1: Warning: Prefer unicode apostrophes. [UseUnicodeApostrophe]
+                """res/values/strings.xml:1: Warning: Prefer unicode apostrophes [UseUnicodeApostrophe]
                 |<string name="a_bad_string">ASCII\'s punctuation</string>
                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings

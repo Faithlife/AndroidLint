@@ -349,10 +349,11 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             "Redundant CoroutineScope",
             """
                 $MESSAGE
-                For LifecycleOwner: `lifecycleScope`
-                For ViewModel: `viewModelScope`
-                For Fragment: Prefer `viewLifecycleOwner.lifecycleScope` over `lifecycleScope`
-                For Views: `findViewTreeLifecycleOwner()?.lifecycleScope`
+
+                - For LifecycleOwner: `lifecycleScope`
+                - For ViewModel: `viewModelScope`
+                - For Fragment: Prefer `viewLifecycleOwner.lifecycleScope` over `lifecycleScope`
+                - For Views: `findViewTreeLifecycleOwner()?.lifecycleScope`
             """,
             moreInfo = "https://developer.android.com/topic/libraries/architecture/coroutines",
             category = Category.CORRECTNESS,
