@@ -618,10 +618,12 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope implementation with viewLifecycleOwner.lifecycleScope:
-@@ -7 +7
+@@ -3 +3
++ import androidx.lifecycle.lifecycleScope
+@@ -7 +8
 - class ProfileFragment : Fragment(), CoroutineScope {
 + class ProfileFragment : Fragment() {
-@@ -10 +10
+@@ -10 +11
 -         launch { }
 +         viewLifecycleOwner.lifecycleScope.launch { }"""
         )
@@ -791,10 +793,12 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope implementation with viewLifecycleOwner.lifecycleScope:
-@@ -7 +7
+@@ -3 +3
++ import androidx.lifecycle.lifecycleScope
+@@ -7 +8
 - class ProfileFragment : Fragment(), CoroutineScope {
 + class ProfileFragment : Fragment() {
-@@ -10 +10
+@@ -10 +11
 -             launch {}
 +             viewLifecycleOwner.lifecycleScope.launch {}"""
         )
