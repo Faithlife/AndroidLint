@@ -2,32 +2,25 @@
 
 ## [Unreleased]
 ### Added
+- An issue when an `androidx.lifecycle.LifecycleOwner`, `androidx.lifecycle.ViewModel`, or `android.view.View` implements or has a field assignable to `kotlinx.coroutines.CoroutineScope`.
+  Existing scopes are bound to relevant lifecycle events in the system and will prevent coroutines from running past their utility.
+  - `LifecycleOwner` should use `lifecycleScope`
+  - `Fragment` should use `viewLifecycleOwner.lifecycleScope`,
+  - `ViewModel` should use `viewModelScope`
+  - `View` should use `findViewTreeLifecycleOwner()?.lifecycleScope`
 
 ### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
+- Updated build tooling
+- Treat lint warnings as errors for issues in this library
+- Add ktlint-gradle
 
 ## [1.1.6]
-### Added
-
 ### Changed
 - Java version is increased to Java 11
-
-### Deprecated
-
-### Removed
 
 ### Fixed
 - Multiple build variants are published after upgrading gradle maven publish plugin to [0.19.0](https://github.com/vanniktech/gradle-maven-publish-plugin/blob/master/CHANGELOG.md#version-0190-2022-02-26)
 - A NPE in SingleApostropheDetector for atypical resource definitions
-
-### Security
 
 ## [1.1.5]
 ### Added
