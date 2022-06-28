@@ -184,14 +184,10 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                         "$providedCoroutineScope."
                     }
 
-                    val importForScope = checkNotNull(context.evaluator.scopeImport(declaration)) {
-                        "Visited classes should always have a scope import"
-                    }
-
                     coroutineScopeCallSiteFixes.add(
                         fix().replace()
                             .range(callLocation)
-                            .imports(importForScope)
+                            .imports(*context.evaluator.scopeImports(declaration))
                             .beginning()
                             .with(coroutineScopeAccessor)
                             .build()
@@ -258,23 +254,26 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
         }
     }
 
-    private fun JavaEvaluator.scopeImport(psiClass: PsiClass?): String? {
-        if (psiClass == null) return null
+    private fun JavaEvaluator.scopeImports(psiClass: PsiClass?): Array<String> {
+        if (psiClass == null) return emptyArray()
 
         return when {
             extendsClass(
                 psiClass,
                 "androidx.lifecycle.ViewModel",
-            ) -> "androidx.lifecycle.viewModelScope"
+            ) -> arrayOf("androidx.lifecycle.viewModelScope")
             implementsInterface(
                 psiClass,
                 "androidx.lifecycle.LifecycleOwner",
-            ) -> "androidx.lifecycle.lifecycleScope"
+            ) -> arrayOf("androidx.lifecycle.lifecycleScope")
             extendsClass(
                 psiClass,
                 "android.view.View",
-            ) -> "androidx.lifecycle.lifecycleScope"
-            else -> null
+            ) -> arrayOf(
+                "androidx.lifecycle.lifecycleScope",
+                "androidx.lifecycle.findViewTreeLifecycleOwner",
+            )
+            else -> emptyArray()
         }
     }
 
