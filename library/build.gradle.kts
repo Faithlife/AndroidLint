@@ -23,6 +23,11 @@ android {
     lint {
         warningsAsErrors = true
         checkDependencies = true
+
+        // The pre-release AGP 7.3's lint checks require 33, but the AGP release was only tested
+        // with 32, so that causes another lint error. We should use the most up to date version
+        // when AGP 7.3 stabilizes and remove this supression.
+        disable += "OldTargetApi"
     }
 }
 
