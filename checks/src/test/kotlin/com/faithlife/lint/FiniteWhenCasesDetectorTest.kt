@@ -1,9 +1,6 @@
 package com.faithlife.lint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
-import com.android.tools.lint.detector.api.Detector
-import com.android.tools.lint.detector.api.Issue
-import org.junit.Assert.*
 import org.junit.Test
 
 @Suppress("UnstableApiUsage")
@@ -12,7 +9,7 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
     override fun getIssues() = listOf(FiniteWhenCasesDetector.ISSUE)
 
     @Test
-    fun `test check bad`() {
+    fun `test check else used in when with finite case subject`() {
         val code = """
             package com.faithlife
 
@@ -30,7 +27,7 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
                 fun pump() {
                     val message = queue.poll()
                     when (message.kind) {
-                       MessageKind.TEXT -> {}
+                       MessageKind.Text -> {}
                        else -> {}
                     }
                 }
@@ -40,5 +37,36 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
         lint().files(kotlin(code))
             .run()
             .expectWarningCount(1)
+    }
+
+    @Test
+    fun `test clean`() {
+        val code = """
+            package com.faithlife
+
+            import java.util.ArrayDeque
+
+            enum class MessageKind {
+                Text,
+                Media,
+            }
+
+            data class Message(val id: String, val kind: MessageKind)
+
+            class MessageProcessor {
+                private val queue = ArrayDeque<Message>()
+                fun pump() {
+                    val message = queue.poll()
+                    when (message.kind) {
+                       MessageKind.Text -> {}
+                       MessageKind.Media -> {}
+                    }
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectClean()
     }
 }

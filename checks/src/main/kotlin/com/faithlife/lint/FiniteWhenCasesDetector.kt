@@ -15,37 +15,33 @@ import com.intellij.psi.PsiType
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.uast.UBlockExpression
+import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.kotlin.KotlinUSwitchExpression
 
 @Suppress("UnstableApiUsage")
 class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableUastTypes() = listOf(UMethod::class.java)
+    override fun getApplicableUastTypes() = listOf(UExpression::class.java)
+
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitMethod(node: UMethod) {
-            when (val body = node.uastBody) {
-                is UBlockExpression -> {
-                    for (expression in body.expressions) {
-                        val whenExpression = expression as? KotlinUSwitchExpression ?: continue
+        override fun visitExpression(node: UExpression) {
+            val whenExpression = node as? KotlinUSwitchExpression ?: return
 
-                        val isSealed = context.evaluator.isSealed(context.evaluator.getTypeClass(whenExpression.expression!!.getExpressionType()))
-                        val isEnum = context.evaluator.extendsClass(context.evaluator.getTypeClass(whenExpression.expression!!.getExpressionType()), "java.lang.Enum", true)
+            val isSealed = context.evaluator.isSealed(context.evaluator.getTypeClass(whenExpression.expression!!.getExpressionType()))
+            val isEnum = context.evaluator.extendsClass(context.evaluator.getTypeClass(whenExpression.expression!!.getExpressionType()), "java.lang.Enum", true)
 
-                        val elseBranch = expression.body.expressions.find {
-                            it.sourcePsi?.text?.trim()?.startsWith("else") == true
-                        }
+            val elseBranch = node.body.expressions.find {
+                it.sourcePsi?.text?.trim()?.startsWith("else") == true
+            }
 
-                        if ((isEnum || isSealed) && elseBranch != null) {
-                            val incident = Incident(context)
-                                .issue(ISSUE)
-                                .message(MESSAGE)
-                                .scope(expression)
-                                .location(context.getLocation(elseBranch))
+            if ((isEnum || isSealed) && elseBranch != null) {
+                val incident = Incident(context)
+                    .issue(ISSUE)
+                    .message(MESSAGE)
+                    .scope(node)
+                    .location(context.getLocation(elseBranch))
 
-                            incident.report()
-                        }
-                    }
-                }
+                incident.report()
             }
         }
     }
