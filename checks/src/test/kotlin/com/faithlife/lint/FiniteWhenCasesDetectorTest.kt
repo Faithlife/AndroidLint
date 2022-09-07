@@ -9,7 +9,7 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
     override fun getIssues() = listOf(FiniteWhenCasesDetector.ISSUE)
 
     @Test
-    fun `test check else used in when with finite case subject`() {
+    fun `test check else used in when with enum subject`() {
         val code = """
             package com.faithlife
 
@@ -28,6 +28,72 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
                     val message = queue.poll()
                     when (message.kind) {
                        MessageKind.Text -> {}
+                       else -> {}
+                    }
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectWarningCount(1)
+    }
+
+    @Test
+    fun `test check else used in when with sealed type subject`() {
+        val code = """
+            package com.faithlife
+
+            import java.util.ArrayDeque
+
+            sealed interface MessageKind {
+                object Text : MessageKind
+                object Media : MessageKind
+            }
+
+            data class Message(val id: String, val kind: MessageKind)
+
+            class MessageProcessor {
+                private val queue = ArrayDeque<Message>()
+                fun pump() {
+                    val message = queue.poll()
+                    when (message.kind) {
+                       is MessageKind.Text -> {}
+                       else -> {}
+                    }
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectWarningCount(1)
+    }
+
+    @Test
+    fun `test check else used in when with nested sealed type subject`() {
+        val code = """
+            package com.faithlife
+
+            import java.util.ArrayDeque
+
+            sealed interface MessageKind {
+                object Text : MessageKind
+                sealed interface Media : MessageKind {
+                    object Video : Media
+                    object ImageSet : Media
+                }
+            }
+
+            data class Message(val id: String, val kind: MessageKind)
+
+            class MessageProcessor {
+                private val queue = ArrayDeque<Message>()
+                fun pump() {
+                    val message = queue.poll()
+                    val kind = message.kind as MessageKind.Media
+                    when (kind) {
+                       is MessageKind.Media.Video -> {}
                        else -> {}
                     }
                 }
