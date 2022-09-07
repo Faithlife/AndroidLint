@@ -21,9 +21,11 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
         override fun visitExpression(node: UExpression) {
             val whenExpression = node as? KotlinUSwitchExpression ?: return
+            val subjectType = whenExpression.expression?.getExpressionType() ?: return
 
-            val isSealed = context.evaluator.isSealed(context.evaluator.getTypeClass(whenExpression.expression!!.getExpressionType()))
-            val isEnum = context.evaluator.extendsClass(context.evaluator.getTypeClass(whenExpression.expression!!.getExpressionType()), "java.lang.Enum", true)
+            val subjectTypeClass = context.evaluator.getTypeClass(subjectType)
+            val isSealed = context.evaluator.isSealed(subjectTypeClass)
+            val isEnum = context.evaluator.extendsClass(subjectTypeClass, "java.lang.Enum", true)
 
             val elseBranch = node.body.expressions
                 .filterIsInstance<KotlinUSwitchEntry>()

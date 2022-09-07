@@ -135,4 +135,35 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    @Test
+    fun `test clean no subject`() {
+        val code = """
+            package com.faithlife
+
+            import java.util.ArrayDeque
+
+            enum class MessageKind {
+                Text,
+                Media,
+            }
+
+            data class Message(val id: String, val kind: MessageKind)
+
+            class MessageProcessor {
+                private val queue = ArrayDeque<Message>()
+                fun pump() {
+                    val message = queue.poll()
+                    when {
+                       message.kind == MessageKind.Text -> {}
+                       message.kind == MessageKind.Media -> {}
+                    }
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectClean()
+    }
 }
