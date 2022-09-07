@@ -1,5 +1,6 @@
 package com.faithlife.lint
 
+import com.android.resources.Navigation
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -10,6 +11,9 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.psi.PsiType
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.kotlin.KotlinUSwitchExpression
@@ -22,15 +26,21 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
             when (val body = node.uastBody) {
                 is UBlockExpression -> {
                     for (expression in body.expressions) {
-                        // todo: check subject. This fails on every use of else in when, which is wrong
-                        if (expression is KotlinUSwitchExpression &&
-                            expression.body.expressions.any { it.sourcePsi?.text?.startsWith("else") == true }) {
+                        val whenExpression = expression as? KotlinUSwitchExpression ?: continue
 
+                        val isSealed = context.evaluator.isSealed(context.evaluator.getTypeClass(whenExpression.expression!!.getExpressionType()))
+                        val isEnum = context.evaluator.extendsClass(context.evaluator.getTypeClass(whenExpression.expression!!.getExpressionType()), "java.lang.Enum", true)
+
+                        val elseBranch = expression.body.expressions.find {
+                            it.sourcePsi?.text?.trim()?.startsWith("else") == true
+                        }
+
+                        if ((isEnum || isSealed) && elseBranch != null) {
                             val incident = Incident(context)
                                 .issue(ISSUE)
                                 .message(MESSAGE)
                                 .scope(expression)
-                                .location(context.getLocation(expression))
+                                .location(context.getLocation(elseBranch))
 
                             incident.report()
                         }
