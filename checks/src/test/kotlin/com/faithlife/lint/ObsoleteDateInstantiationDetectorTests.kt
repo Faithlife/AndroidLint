@@ -9,7 +9,7 @@ class ObsoleteDateInstantiationDetectorTests : LintDetectorTest() {
     override fun getIssues() = listOf(ObsoleteDateInstantiationDetector.ISSUE)
 
     @Test
-    fun `test Date detected`() {
+    fun `instantiated Date detected`() {
         val code = """
             package com.faithlife
 
@@ -34,7 +34,7 @@ class ObsoleteDateInstantiationDetectorTests : LintDetectorTest() {
     }
 
     @Test
-    fun `test clean`() {
+    fun `check clean`() {
         val code = """
             package com.faithlife
 
