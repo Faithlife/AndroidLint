@@ -2,12 +2,13 @@
 
 ## [Unreleased]
 ### Added
-- An issue when an `androidx.lifecycle.LifecycleOwner`, `androidx.lifecycle.ViewModel`, or `android.view.View` implements or has a field assignable to `kotlinx.coroutines.CoroutineScope`.
+- A detector when an `androidx.lifecycle.LifecycleOwner`, `androidx.lifecycle.ViewModel`, or `android.view.View` implements or has a field assignable to `kotlinx.coroutines.CoroutineScope`.
   Existing scopes are bound to relevant lifecycle events in the system and will prevent coroutines from running past their utility.
   - `LifecycleOwner` should use `lifecycleScope`
   - `Fragment` should use `viewLifecycleOwner.lifecycleScope`,
   - `ViewModel` should use `viewModelScope`
   - `View` should use `findViewTreeLifecycleOwner()?.lifecycleScope`
+- A detector for else used as a `when` branch when the `when` subject has finite possibilities
 
 ### Changed
 - Updated build tooling
@@ -51,4 +52,4 @@
 
 ## [1.0.1]
 ### Fixed
-- An issue parsing escaped apostrophes
+- A detector parsing escaped apostrophes
