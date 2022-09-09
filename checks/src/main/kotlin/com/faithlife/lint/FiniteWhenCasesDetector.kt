@@ -62,6 +62,9 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
                 This usually doesn't happen with android applications, which typically
                 consume all libraries being used (other than the Android Framework)
                 at compile time.
+
+                This check should only run in modules that will be compiled with an app.
+                It should not run in library code since library dependencies may change without recompiling the library.
             """,
             moreInfo = "https://kotlinlang.org/docs/control-flow.html#when-expression",
             category = Category.CORRECTNESS,
