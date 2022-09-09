@@ -2,11 +2,13 @@ package com.faithlife.lint
 
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
+import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.LintMap
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
@@ -22,28 +24,40 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
         override fun visitExpression(node: UExpression) {
             val whenExpression = node as? KotlinUSwitchExpression ?: return
             val subjectType = whenExpression.expression?.getExpressionType() ?: return
+            val subjectTypeClass = context.evaluator.getTypeClass(subjectType) ?: return
 
-            val subjectTypeClass = context.evaluator.getTypeClass(subjectType)
-            val isSealed = context.evaluator.isSealed(subjectTypeClass)
-            val isEnum = context.evaluator.extendsClass(subjectTypeClass, "java.lang.Enum", true)
+            val finiteCases = context.evaluator.isSealed(subjectTypeClass) ||
+                context.evaluator.extendsClass(subjectTypeClass, "java.lang.Enum", true)
 
             val elseBranch = node.body.expressions
                 .filterIsInstance<KotlinUSwitchEntry>()
-                .find { it.caseValues.isEmpty() } // else -> is the only possible case with empty values
+                .find { it.sourcePsi.isElse }
 
-            if ((isEnum || isSealed) && elseBranch != null) {
+            if (finiteCases && elseBranch != null) {
                 val incident = Incident(context)
                     .issue(ISSUE)
                     .message(MESSAGE)
                     .scope(node)
                     .location(context.getLocation(elseBranch))
 
-                incident.report()
+                context.report(
+                    incident,
+                    map().put(
+                        KEY_IS_SUBJECT_TYPE_PUBLIC,
+                        context.evaluator.isPublic(subjectTypeClass)
+                    )
+                )
             }
         }
     }
 
+    override fun filterIncident(context: Context, incident: Incident, map: LintMap): Boolean {
+        if (!context.mainProject.isLibrary) return true
+        return !map.getBoolean(KEY_IS_SUBJECT_TYPE_PUBLIC, true)!!
+    }
+
     companion object {
+        private const val KEY_IS_SUBJECT_TYPE_PUBLIC = "IsPublic"
         private const val MESSAGE = "Prefer explicit case handling over else."
 
         val ISSUE = Issue.create(
@@ -74,7 +88,6 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
                 Scope.JAVA_FILE_SCOPE
             ),
             androidSpecific = false,
-            enabledByDefault = false,
         )
     }
 }
