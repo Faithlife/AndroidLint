@@ -45,6 +45,9 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
                     map().put(
                         KEY_IS_SUBJECT_TYPE_PUBLIC,
                         context.evaluator.isPublic(subjectTypeClass)
+                    ).put(
+                        KEY_IS_FRAMEWORK_TYPE,
+                        subjectTypeClass.isAndroidFrameworkType
                     )
                 )
             }
@@ -52,11 +55,28 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
     }
 
     override fun filterIncident(context: Context, incident: Incident, map: LintMap): Boolean {
+        // Since the android framework might add new cases to a when subject
+        // during framework upgrades without recompiling our app from source, enforcing
+        // this rule on subjects of that category would make things brittle.
+        if (map.getBoolean(KEY_IS_FRAMEWORK_TYPE, false)!!) return false
+
+        // If the main project isn't a library, it's an app.
+        // Apps always recompile against direct dependencies, so binary
+        // incompatibility is less of a risk.
+        //
+        // Directing Lint to check app project source dependencies
+        // via lint.checkDependencies gives the tool more information
+        // around which dependencies are always recompiled with the app project.
         if (!context.mainProject.isLibrary) return true
+
+        // There's no way (without reflection) for a non-public type
+        // to introduce binary incompatibilities, so allow this rule to apply
+        // to the code where the subject type is accessible.
         return !map.getBoolean(KEY_IS_SUBJECT_TYPE_PUBLIC, true)!!
     }
 
     companion object {
+        private const val KEY_IS_FRAMEWORK_TYPE = "IsFrameworkType"
         private const val KEY_IS_SUBJECT_TYPE_PUBLIC = "IsPublic"
         private const val MESSAGE = "Prefer explicit case handling over else."
 
@@ -87,7 +107,7 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
                 FiniteWhenCasesDetector::class.java,
                 Scope.JAVA_FILE_SCOPE
             ),
-            androidSpecific = false,
+            androidSpecific = true, // true because of the escape hatches in filterIncident
         )
     }
 }

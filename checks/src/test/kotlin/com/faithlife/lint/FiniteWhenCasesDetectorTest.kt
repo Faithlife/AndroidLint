@@ -106,6 +106,34 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
     }
 
     @Test
+    fun `test clean framework subject`() {
+        val code = """
+            package com.faithlife
+
+            import java.util.ArrayDeque
+            import java.time
+
+            data class Message(val id: String, val daySent: DayOfWeek)
+
+            class MessageProcessor {
+                private val queue = ArrayDeque<Message>()
+                fun pump() {
+                    val message = queue.poll()
+                    when (message.daySent) {
+                       MessageKind.Text -> {}
+                       MessageKind.Media -> {}
+                       else -> {}
+                    }
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectClean()
+    }
+
+    @Test
     fun `test clean`() {
         val code = """
             package com.faithlife
