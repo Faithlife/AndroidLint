@@ -90,13 +90,18 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
                 relevant when expressions if the subject of the expression changes.
 
                 This check should only run in modules that will either be compiled:
-                    - with an app and do not produce artifacts that are used elsewhere.
-                    - as a stand alone library artifact
+                    a. with an app and do not produce artifacts that are used elsewhere.
+                    b. as a stand alone library artifact
+
+                Scenario b will run the check in a less-sensitive mode that should
+                avoid encouraging brittle libraries. Only non-public when subject types
+                will be eligible for warnings.
 
                 If a library module is both compiled as a local dependency of an app and is
                 distributed as a stand-alone library artifact, this issue should not be enabled
                 as it will encourage brittle libraries that can introduce binary incompatibilities
-                in the form of a kotlin.NoWhenBranchMatchedException. The lint check is enabled by
+                in the form of a kotlin.NoWhenBranchMatchedException. Lint cannot guarantee that
+                libraries are not distributed this way. The lint check is enabled by
                 default because this is a very unorthodox project structure.
 
                 :app gradle module (has lint.checkDependencies = true), depends on :library
