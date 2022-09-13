@@ -12,6 +12,7 @@ import com.android.tools.lint.detector.api.LintMap
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.model.LintModelModuleType
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.kotlin.KotlinUSwitchEntry
 import org.jetbrains.uast.kotlin.KotlinUSwitchExpression
@@ -89,16 +90,21 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
                 Explicit handling of when cases encourages reconsideration of
                 relevant when expressions if the subject of the expression changes.
 
-                This should not be used if the when subject might possibly introduce
-                new cases without this module being recompiled. One common way this can
-                happen is if the application consumes jars delivered out of sync with the app.
+                This check should only run in modules that will either be compiled:
+                    - with an app and do not produce artifacts that are used elsewhere.
+                    - as a stand alone library artifact
 
-                This usually doesn't happen with android applications, which typically
-                consume all libraries being used (other than the Android Framework)
-                at compile time.
+                If a library module is both compiled as a local dependency of an app and is
+                distributed as a stand-alone library artifact, this issue should not be enabled
+                as it will encourage brittle libraries that can introduce binary incompatibilities
+                in the form of a kotlin.NoWhenBranchMatchedException. The lint check is enabled by
+                default because this is a very unorthodox project structure.
 
-                This check should only run in modules that will be compiled with an app.
-                It should not run in library code since library dependencies may change without recompiling the library.
+                :app gradle module (has lint.checkDependencies = true), depends on :library
+                   |
+                   :library gradle module (this module is also published as a library outside of app module use)
+
+                Disable the check for the library module in this case.
             """,
             moreInfo = "https://kotlinlang.org/docs/control-flow.html#when-expression",
             category = Category.CORRECTNESS,
