@@ -9,7 +9,7 @@
   - `ViewModel` should use `viewModelScope`
   - `View` should use `findViewTreeLifecycleOwner()?.lifecycleScope`
 - A detector for else used as a `when` branch when the `when` subject has finite possibilities
-  - This detector is off by default due to its potential to encourage brittle code in libraries. It should be used in all code that is recompiled with an Android app module. It should not be used in libraries meant for arbitrary consumption.
+  - This detector works best when applied to an app project with `lint.checkDependencies = true` in the app module AGP DSL.
 
 ### Changed
 - Updated build tooling
