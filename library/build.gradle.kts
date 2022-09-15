@@ -8,11 +8,11 @@ plugins {
 val JAVA_VERSION: String by properties
 
 android {
-    compileSdk = 32
+    compileSdk = 33
 
     defaultConfig {
         minSdk = 25
-        targetSdk = 32
+        targetSdk = 33
     }
 
     compileOptions {
