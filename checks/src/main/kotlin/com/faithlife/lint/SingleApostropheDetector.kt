@@ -53,7 +53,7 @@ class SingleApostropheDetector : ResourceXmlDetector() {
 
         val ISSUE = Issue.create(
             "UseUnicodeApostrophe",
-            "Prefer unicode apostrophes.",
+            "Prefer unicode apostrophes",
             "This check enforces the use of unicode punctuation for single quotation uses " +
                 "like possessive parts of speech or contractions.",
             Implementation(SingleApostropheDetector::class.java, Scope.RESOURCE_FILE_SCOPE),

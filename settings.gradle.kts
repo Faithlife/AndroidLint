@@ -8,7 +8,7 @@ dependencyResolutionManagement {
             library("kotlinReflect", "org.jetbrains.kotlin", "kotlin-reflect").versionRef("kotlin")
             bundle("kotlin", listOf("kotlinStd", "kotlinReflect"))
 
-            version("lint", "30.2.1")
+            version("lint", "30.3.0-beta04")
             library("lintApi", "com.android.tools.lint", "lint-api").versionRef("lint")
 
             library("lint", "com.android.tools.lint", "lint").versionRef("lint")

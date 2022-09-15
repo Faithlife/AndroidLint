@@ -184,11 +184,10 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                         "$providedCoroutineScope."
                     }
 
-                    // todo: auto import scope extension property handling
-                    //  (added in forthcoming lint api release)
                     coroutineScopeCallSiteFixes.add(
                         fix().replace()
                             .range(callLocation)
+                            .imports(*context.evaluator.scopeImports(declaration))
                             .beginning()
                             .with(coroutineScopeAccessor)
                             .build()
@@ -252,6 +251,29 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                 "android.view.View",
             ) -> "findViewTreeLifecycleOwner()?.lifecycleScope"
             else -> null
+        }
+    }
+
+    private fun JavaEvaluator.scopeImports(psiClass: PsiClass?): Array<String> {
+        if (psiClass == null) return emptyArray()
+
+        return when {
+            extendsClass(
+                psiClass,
+                "androidx.lifecycle.ViewModel",
+            ) -> arrayOf("androidx.lifecycle.viewModelScope")
+            implementsInterface(
+                psiClass,
+                "androidx.lifecycle.LifecycleOwner",
+            ) -> arrayOf("androidx.lifecycle.lifecycleScope")
+            extendsClass(
+                psiClass,
+                "android.view.View",
+            ) -> arrayOf(
+                "androidx.lifecycle.lifecycleScope",
+                "androidx.lifecycle.findViewTreeLifecycleOwner",
+            )
+            else -> emptyArray()
         }
     }
 
@@ -326,10 +348,11 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             "Redundant CoroutineScope",
             """
                 $MESSAGE
-                For LifecycleOwner: `lifecycleScope`
-                For ViewModel: `viewModelScope`
-                For Fragment: Prefer `viewLifecycleOwner.lifecycleScope` over `lifecycleScope`
-                For Views: `findViewTreeLifecycleOwner()?.lifecycleScope`
+
+                - For LifecycleOwner: `lifecycleScope`
+                - For ViewModel: `viewModelScope`
+                - For Fragment: Prefer `viewLifecycleOwner.lifecycleScope` over `lifecycleScope`
+                - For Views: `findViewTreeLifecycleOwner()?.lifecycleScope`
             """,
             moreInfo = "https://developer.android.com/topic/libraries/architecture/coroutines",
             category = Category.CORRECTNESS,

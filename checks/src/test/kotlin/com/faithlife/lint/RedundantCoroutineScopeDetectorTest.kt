@@ -618,10 +618,12 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope implementation with viewLifecycleOwner.lifecycleScope:
-@@ -7 +7
+@@ -3 +3
++ import androidx.lifecycle.lifecycleScope
+@@ -7 +8
 - class ProfileFragment : Fragment(), CoroutineScope {
 + class ProfileFragment : Fragment() {
-@@ -10 +10
+@@ -10 +11
 -         launch { }
 +         viewLifecycleOwner.lifecycleScope.launch { }"""
         )
@@ -791,10 +793,12 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope implementation with viewLifecycleOwner.lifecycleScope:
-@@ -7 +7
+@@ -3 +3
++ import androidx.lifecycle.lifecycleScope
+@@ -7 +8
 - class ProfileFragment : Fragment(), CoroutineScope {
 + class ProfileFragment : Fragment() {
-@@ -10 +10
+@@ -10 +11
 -             launch {}
 +             viewLifecycleOwner.lifecycleScope.launch {}"""
         )
@@ -889,6 +893,44 @@ src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the
 @@ -11 +10
 -         sneakyScope = scope
 +         sneakyScope = viewLifecycleOwner.lifecycleScope"""
+        )
+    }
+
+    @Test
+    fun `test fix imports extension functions for View lifecycleScope`() {
+        val problematicCode = """
+            package com.faithlife
+
+            import android.view.View
+            import kotlinx.coroutines.CoroutineScope
+            import kotlinx.coroutines.launch
+
+            class AvatarView : View(), CoroutineScope {
+                fun loadImage() {
+                    launch {
+                        // load image
+                    }
+                }
+            }
+        """.trimIndent()
+
+        val result = lint().files(
+            java(VIEW_JAVA_STUB),
+            kotlin(COROUTINE_SCOPE_KT_STUB),
+            kotlin(problematicCode),
+        ).run()
+
+        result.expectFixDiffs(
+            """Fix for src/com/faithlife/AvatarView.kt line 7: Replace CoroutineScope implementation with findViewTreeLifecycleOwner()?.lifecycleScope:
+@@ -3 +3
++ import androidx.lifecycle.findViewTreeLifecycleOwner
++ import androidx.lifecycle.lifecycleScope
+@@ -7 +9
+- class AvatarView : View(), CoroutineScope {
++ class AvatarView : View() {
+@@ -9 +11
+-         launch {
++         findViewTreeLifecycleOwner()?.lifecycleScope?.launch {"""
         )
     }
 
