@@ -31,7 +31,6 @@ import org.jetbrains.uast.getIoFile
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
-@Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
     override fun applicableSuperClasses(): List<String> = listOf(
         "androidx.fragment.app.Fragment",

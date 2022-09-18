@@ -3,7 +3,6 @@ package com.faithlife.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import org.junit.Test
 
-@Suppress("UnstableApiUsage")
 class SingleApostropheDetectorTests : LintDetectorTest() {
     override fun getDetector() = SingleApostropheDetector()
     override fun getIssues() = listOf(SingleApostropheDetector.ISSUE)

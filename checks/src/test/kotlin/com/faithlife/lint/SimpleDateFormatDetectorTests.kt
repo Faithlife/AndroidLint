@@ -3,7 +3,6 @@ package com.faithlife.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import org.junit.Test
 
-@Suppress("UnstableApiUsage")
 class SimpleDateFormatDetectorTests : LintDetectorTest() {
     override fun getDetector() = SimpleDateFormatDetector()
     override fun getIssues() = listOf(SimpleDateFormatDetector.ISSUE)

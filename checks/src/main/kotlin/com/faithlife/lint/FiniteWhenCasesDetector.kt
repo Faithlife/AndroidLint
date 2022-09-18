@@ -16,7 +16,6 @@ import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.kotlin.KotlinUSwitchEntry
 import org.jetbrains.uast.kotlin.KotlinUSwitchExpression
 
-@Suppress("UnstableApiUsage")
 class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UExpression::class.java)
 

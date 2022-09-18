@@ -3,7 +3,6 @@ package com.faithlife.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import org.junit.Test
 
-@Suppress("UnstableApiUsage")
 class ObsoleteDateInstantiationDetectorTests : LintDetectorTest() {
     override fun getDetector() = ObsoleteDateInstantiationDetector()
     override fun getIssues() = listOf(ObsoleteDateInstantiationDetector.ISSUE)

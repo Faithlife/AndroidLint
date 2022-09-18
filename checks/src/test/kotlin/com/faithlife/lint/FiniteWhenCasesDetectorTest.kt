@@ -3,7 +3,6 @@ package com.faithlife.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import org.junit.Test
 
-@Suppress("UnstableApiUsage")
 class FiniteWhenCasesDetectorTest : LintDetectorTest() {
     override fun getDetector() = FiniteWhenCasesDetector()
     override fun getIssues() = listOf(FiniteWhenCasesDetector.ISSUE)

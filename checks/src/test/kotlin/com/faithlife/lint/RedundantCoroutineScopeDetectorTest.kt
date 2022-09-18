@@ -3,7 +3,6 @@ package com.faithlife.lint
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import org.junit.Test
 
-@Suppress("UnstableApiUsage")
 class RedundantCoroutineScopeDetectorTest : LintDetectorTest() {
     override fun getDetector() = RedundantCoroutineScopeDetector()
     override fun getIssues() = listOf(RedundantCoroutineScopeDetector.ISSUE)
