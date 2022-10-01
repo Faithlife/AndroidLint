@@ -33,7 +33,7 @@ class SingleApostropheDetector : ResourceXmlDetector() {
                     element,
                     context.getLocation(element),
                     ISSUE.getBriefDescription(TextFormat.RAW),
-                    fix
+                    fix,
                 )
             }
         } catch (e: NullPointerException) {
@@ -42,7 +42,7 @@ class SingleApostropheDetector : ResourceXmlDetector() {
                 """
                 |File: ${context.file.absolutePath}
                 |Text: ${element.text()} Element: $element
-                """.trimMargin()
+                """.trimMargin(),
             )
         }
     }

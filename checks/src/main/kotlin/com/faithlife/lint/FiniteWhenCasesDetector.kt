@@ -43,11 +43,11 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
                     incident,
                     map().put(
                         KEY_IS_SUBJECT_TYPE_PUBLIC,
-                        context.evaluator.isPublic(subjectTypeClass)
+                        context.evaluator.isPublic(subjectTypeClass),
                     ).put(
                         KEY_IS_FRAMEWORK_TYPE,
-                        subjectTypeClass.isAndroidFrameworkType
-                    )
+                        subjectTypeClass.isAndroidFrameworkType,
+                    ),
                 )
             }
         }
@@ -114,7 +114,7 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
             severity = Severity.WARNING,
             implementation = Implementation(
                 FiniteWhenCasesDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+                Scope.JAVA_FILE_SCOPE,
             ),
             androidSpecific = true, // true because of the escape hatches in filterIncident
         )

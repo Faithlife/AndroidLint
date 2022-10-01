@@ -29,7 +29,7 @@ class SimpleDateFormatDetectorTests : LintDetectorTest() {
             |        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ROOT)
             |                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             |0 errors, 1 warnings
-                """.trimMargin()
+                """.trimMargin(),
             )
     }
 

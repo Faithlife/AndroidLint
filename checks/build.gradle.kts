@@ -46,7 +46,7 @@ kotlin {
                           |$border
                           |$output
                           |$border
-                            """.trimMargin()
+                            """.trimMargin(),
                         )
                     }
                 }
@@ -54,7 +54,7 @@ kotlin {
                 override fun afterTest(testDescriptor: TestDescriptor?, result: TestResult?) {}
                 override fun beforeTest(testDescriptor: TestDescriptor?) {}
                 override fun beforeSuite(suite: TestDescriptor?) {}
-            }
+            },
         )
     }
 }
@@ -70,7 +70,7 @@ dependencies {
 
 tasks.named<Jar>("jar").configure {
     manifest.attributes(
-        mapOf("Lint-Registry-v2" to "com.faithlife.lint.IssueRegistry")
+        mapOf("Lint-Registry-v2" to "com.faithlife.lint.IssueRegistry"),
     )
 }
 

@@ -25,7 +25,7 @@ class SingleApostropheDetectorTests : LintDetectorTest() {
                 |<string name="a_bad_string">ASCII's punctuation</string>
                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings
-                """.trimMargin()
+                """.trimMargin(),
             )
     }
 
@@ -39,7 +39,7 @@ class SingleApostropheDetectorTests : LintDetectorTest() {
                 |<string name="a_bad_string">ASCIIs' punctuation</string>
                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings
-                """.trimMargin()
+                """.trimMargin(),
             )
     }
 
@@ -53,7 +53,7 @@ class SingleApostropheDetectorTests : LintDetectorTest() {
                 |<string name="a_bad_string">ASCII\'s punctuation</string>
                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 |0 errors, 1 warnings
-                """.trimMargin()
+                """.trimMargin(),
             )
     }
 

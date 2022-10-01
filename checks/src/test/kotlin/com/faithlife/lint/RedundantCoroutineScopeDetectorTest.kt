@@ -80,7 +80,7 @@ class RedundantCoroutineScopeDetectorTest : LintDetectorTest() {
             """src/com/faithlife/ProfileFragment.kt:6: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : Fragment(), CoroutineScope
                                     ~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
     }
 
@@ -105,7 +105,7 @@ class ProfileFragment : Fragment(), CoroutineScope
             """src/com/faithlife/ProfileFragment.kt:5: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : CoroutineScopeBase(), LifecycleOwner
                         ~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
     }
 
@@ -133,7 +133,7 @@ class ProfileFragment : CoroutineScopeBase(), LifecycleOwner
             """src/com/faithlife/ProfileFragment.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
     private val scope = CoroutineScopeBase()
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
     }
 
@@ -158,7 +158,7 @@ class ProfileFragment : CoroutineScopeBase(), LifecycleOwner
                 """src/com/faithlife/ProfileViewModel.kt:6: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileViewModel : ViewModel(), CoroutineScope
                                       ~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
             )
     }
 
@@ -186,7 +186,7 @@ class ProfileViewModel : ViewModel(), CoroutineScope
             """src/com/faithlife/ProfileViewModel.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
     private val scope = CoroutineScopeBase()
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
     }
 
@@ -207,7 +207,7 @@ class ProfileViewModel : ViewModel(), CoroutineScope
                 """src/com/faithlife/ProfileView.kt:6: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileView : View(), CoroutineScope
                             ~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
             )
     }
 
@@ -235,7 +235,7 @@ class ProfileView : View(), CoroutineScope
             """src/com/faithlife/ProfileView.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
     private val scope = CoroutineScopeBase()
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
     }
 
@@ -264,7 +264,7 @@ class ProfileView : View(), CoroutineScope
             """src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
     private val scope = CoroutineScopeBase()
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
     }
 
@@ -293,7 +293,7 @@ class ProfileView : View(), CoroutineScope
             """src/com/faithlife/ProfileFragment.kt:6: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
                         ~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
 
         result.expectFixDiffs(
@@ -302,7 +302,7 @@ class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
 - class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
 -     override val coroutineContext: CoroutineContext
 -         get() = object : CoroutineContext {}
-+ class ProfileFragment : LifecycleOwner {"""
++ class ProfileFragment : LifecycleOwner {""",
         )
     }
 
@@ -327,7 +327,7 @@ class ProfileFragment : CoroutineScopeBase(), LifecycleOwner {
             """src/com/faithlife/ProfileFragment.kt:6: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : CoroutineScope, LifecycleOwner
                         ~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
 
         result.expectFixDiffs(
@@ -335,7 +335,7 @@ class ProfileFragment : CoroutineScope, LifecycleOwner
 @@ -6 +6
 - class ProfileFragment : CoroutineScope, LifecycleOwner
 @@ -7 +6
-+ class ProfileFragment : LifecycleOwner"""
++ class ProfileFragment : LifecycleOwner""",
         )
     }
 
@@ -374,7 +374,7 @@ interface ALifecycleOwner : CoroutineScope, LifecycleOwner {
 src/com/faithlife/ALifecycleOwner.kt:11: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : ALifecycleOwner {
                         ~~~~~~~~~~~~~~~
-0 errors, 2 warnings"""
+0 errors, 2 warnings""",
         )
 
         result.expectFixDiffs(
@@ -388,7 +388,7 @@ Fix for src/com/faithlife/ALifecycleOwner.kt line 11: Replace CoroutineScope imp
 + class ProfileFragment {
 @@ -14 +14
 -     override val coroutineContext: CoroutineContext
--         get() = object : CoroutineContext {}"""
+-         get() = object : CoroutineContext {}""",
         )
     }
 
@@ -421,7 +421,7 @@ Fix for src/com/faithlife/ALifecycleOwner.kt line 11: Replace CoroutineScope imp
             """src/com/faithlife/ProfileFragment.kt:5: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : LifecycleOwner, CoroutineScopeBase(-123, {})
                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
 
         result.expectFixDiffs(
@@ -429,7 +429,7 @@ class ProfileFragment : LifecycleOwner, CoroutineScopeBase(-123, {})
 @@ -5 +5
 - class ProfileFragment : LifecycleOwner, CoroutineScopeBase(-123, {})
 @@ -6 +5
-+ class ProfileFragment : LifecycleOwner"""
++ class ProfileFragment : LifecycleOwner""",
         )
     }
 
@@ -462,7 +462,7 @@ class ProfileFragment : LifecycleOwner, CoroutineScopeBase(-123, {})
             """src/com/faithlife/ProfileFragment.kt:5: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : CoroutineScopeBase(-123, {}), LifecycleOwner
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
 
         result.expectFixDiffs(
@@ -470,7 +470,7 @@ class ProfileFragment : CoroutineScopeBase(-123, {}), LifecycleOwner
 @@ -5 +5
 - class ProfileFragment : CoroutineScopeBase(-123, {}), LifecycleOwner
 @@ -6 +5
-+ class ProfileFragment : LifecycleOwner"""
++ class ProfileFragment : LifecycleOwner""",
         )
     }
 
@@ -505,7 +505,7 @@ class ProfileFragment : CoroutineScopeBase(-123, {}), LifecycleOwner
             """src/com/faithlife/AnInterface.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
 class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwner
                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
 
         result.expectFixDiffs(
@@ -513,7 +513,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 @@ -7 +7
 - class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwner
 @@ -8 +7
-+ class ProfileFragment : AnInterface, LifecycleOwner"""
++ class ProfileFragment : AnInterface, LifecycleOwner""",
         )
     }
 
@@ -550,7 +550,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 -     private val scope = CoroutineScopeBase()
 @@ -11 +10
 -         scope.launch {
-+         viewLifecycleOwner.lifecycleScope.launch {"""
++         viewLifecycleOwner.lifecycleScope.launch {""",
         )
     }
 
@@ -587,7 +587,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 -     private val scope = CoroutineScopeBase()
 @@ -10 +9
 -         scope.apply {
-+         viewLifecycleOwner.lifecycleScope.apply {"""
++         viewLifecycleOwner.lifecycleScope.apply {""",
         )
     }
 
@@ -624,7 +624,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 + class ProfileFragment : Fragment() {
 @@ -10 +11
 -         launch { }
-+         viewLifecycleOwner.lifecycleScope.launch { }"""
++         viewLifecycleOwner.lifecycleScope.launch { }""",
         )
     }
 
@@ -661,7 +661,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 -     private val scope = CoroutineScopeBase()
 @@ -10 +9
 -         with(scope) {
-+         with(viewLifecycleOwner.lifecycleScope) {"""
++         with(viewLifecycleOwner.lifecycleScope) {""",
         )
     }
 
@@ -698,7 +698,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
             """src/com/faithlife/ProfileFragment.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
     val scope = CoroutineScopeBase()
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
@@ -706,7 +706,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 -     val scope = CoroutineScopeBase()
 @@ -10 +9
 -         scope.apply {
-+         viewLifecycleOwner.lifecycleScope.apply {"""
++         viewLifecycleOwner.lifecycleScope.apply {""",
         )
     }
 
@@ -749,7 +749,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
             """src/com/faithlife/ProfileFragment.kt:7: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
     val scope = CoroutineScopeBase()
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
 
         result.expectFixDiffs(
@@ -761,7 +761,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 +         viewLifecycleOwner.lifecycleScope.apply {
 @@ -17 +16
 -             scope.launch {}
-+             viewLifecycleOwner.lifecycleScope.launch {}"""
++             viewLifecycleOwner.lifecycleScope.launch {}""",
         )
     }
 
@@ -799,7 +799,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 + class ProfileFragment : Fragment() {
 @@ -10 +11
 -             launch {}
-+             viewLifecycleOwner.lifecycleScope.launch {}"""
++             viewLifecycleOwner.lifecycleScope.launch {}""",
         )
     }
 
@@ -836,7 +836,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
             """src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
     private val scope = CoroutineScopeBase()
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings"""
+0 errors, 1 warnings""",
         )
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ProfileFragment.kt line 8: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
@@ -844,7 +844,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 -     private val scope = CoroutineScopeBase()
 @@ -11 +10
 -         val itTracksAssignment = scope
-+         val itTracksAssignment = viewLifecycleOwner.lifecycleScope"""
++         val itTracksAssignment = viewLifecycleOwner.lifecycleScope""",
         )
     }
 
@@ -883,7 +883,7 @@ class ProfileFragment : AnInterface, CoroutineScopeBase(-123, {}), LifecycleOwne
 src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the class. [RedundantCoroutineScopeDetector]
     lateinit var sneakyScope: CoroutineScope
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 2 warnings"""
+0 errors, 2 warnings""",
         )
         result.expectFixDiffs(
             """Fix for src/com/faithlife/ProfileFragment.kt line 7: Replace CoroutineScope property with viewLifecycleOwner.lifecycleScope:
@@ -891,7 +891,7 @@ src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the
 -     private val scope = CoroutineScopeBase()
 @@ -11 +10
 -         sneakyScope = scope
-+         sneakyScope = viewLifecycleOwner.lifecycleScope"""
++         sneakyScope = viewLifecycleOwner.lifecycleScope""",
         )
     }
 
@@ -929,7 +929,7 @@ src/com/faithlife/ProfileFragment.kt:8: Warning: Consider scopes provided by the
 + class AvatarView : View() {
 @@ -9 +11
 -         launch {
-+         findViewTreeLifecycleOwner()?.lifecycleScope?.launch {"""
++         findViewTreeLifecycleOwner()?.lifecycleScope?.launch {""",
         )
     }
 

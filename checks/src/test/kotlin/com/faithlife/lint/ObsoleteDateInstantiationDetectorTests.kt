@@ -28,7 +28,7 @@ class ObsoleteDateInstantiationDetectorTests : LintDetectorTest() {
             |        val formatter = Date(1244)
             |                        ~~~~~~~~~~
             |0 errors, 1 warnings
-                """.trimMargin()
+                """.trimMargin(),
             )
     }
 

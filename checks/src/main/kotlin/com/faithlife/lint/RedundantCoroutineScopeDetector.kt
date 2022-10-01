@@ -63,7 +63,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
 
             val referenceExpressionVisitor = object : AbstractUastVisitor() {
                 override fun visitSimpleNameReferenceExpression(
-                    node: USimpleNameReferenceExpression
+                    node: USimpleNameReferenceExpression,
                 ): Boolean {
                     // If a field is referenced, add a fix regardless if the implementation
                     // uses a property accessor (typically implicit for public properties) or
@@ -74,7 +74,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                                 .range(context.getLocation(node))
                                 .with(providedCoroutineScope)
                                 .reformat(true)
-                                .build()
+                                .build(),
                         )
 
                         return true
@@ -106,11 +106,11 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                                 .with("")
                                 .reformat(true)
                                 .build(),
-                            *coroutineScopeCallSiteFixes.toTypedArray()
+                            *coroutineScopeCallSiteFixes.toTypedArray(),
                         )
                     } else {
                         null
-                    }
+                    },
                 ).report()
         }
     }
@@ -174,7 +174,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                     val callLocation = context.getCallLocation(
                         node,
                         includeReceiver = true,
-                        includeArguments = false
+                        includeArguments = false,
                     )
 
                     val coroutineScopeAccessor = if (providedCoroutineScope.contains('?')) {
@@ -189,7 +189,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                             .imports(*context.evaluator.scopeImports(declaration))
                             .beginning()
                             .with(coroutineScopeAccessor)
-                            .build()
+                            .build(),
                     )
 
                     return true
@@ -208,7 +208,7 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
                     .range(location)
                     .all()
                     .with("")
-                    .build()
+                    .build(),
             )
 
             val compositeFix = fix()
@@ -358,9 +358,9 @@ class RedundantCoroutineScopeDetector : Detector(), SourceCodeScanner {
             severity = Severity.WARNING,
             implementation = Implementation(
                 RedundantCoroutineScopeDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+                Scope.JAVA_FILE_SCOPE,
             ),
-            androidSpecific = true
+            androidSpecific = true,
         )
     }
 }

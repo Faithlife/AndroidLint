@@ -20,13 +20,13 @@ class SimpleDateFormatDetector : Detector(), SourceCodeScanner {
     override fun visitConstructor(
         context: JavaContext,
         node: UCallExpression,
-        constructor: PsiMethod
+        constructor: PsiMethod,
     ) {
         context.report(
             issue = ISSUE,
             scope = node,
             location = context.getLocation(node),
-            message = "Use Java 8 time APIs instead"
+            message = "Use Java 8 time APIs instead",
         )
     }
 
@@ -39,8 +39,8 @@ class SimpleDateFormatDetector : Detector(), SourceCodeScanner {
             severity = Severity.WARNING,
             implementation = Implementation(
                 SimpleDateFormatDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
-            )
+                Scope.JAVA_FILE_SCOPE,
+            ),
         )
     }
 }

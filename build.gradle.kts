@@ -1,5 +1,5 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 val VERSION_NAME: String by properties
 val JAVA_VERSION: String by properties
@@ -8,7 +8,7 @@ fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
     id("org.jetbrains.changelog") version "1.3.1"
-    id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
+    id("com.diffplug.spotless") version "6.11.0" apply false
 }
 
 buildscript {
@@ -51,9 +51,43 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = "com.diffplug.spotless")
 
-    configure<KtlintExtension> {
-        version.set("0.45.2")
+    configure<SpotlessExtension> {
+        kotlin {
+            ktlint("0.47.1")
+                // Spotless doesn't respect .editorconfig yet.
+                //   https://github.com/diffplug/spotless/issues/142
+                .editorConfigOverride(
+                    mapOf(
+                        "charset" to "utf-8",
+                        "end_of_line" to "lf",
+                        "trim_trailing_whitespace" to true,
+                        "insert_final_newline" to true,
+                        "indent_style" to "space",
+                        "indent_size" to 4,
+                        "ij_kotlin_allow_trailing_comma" to true,
+                        "ij_kotlin_allow_trailing_comma_on_call_site" to true
+                    )
+                )
+        }
+
+        kotlinGradle {
+            ktlint("0.47.1")
+                // Spotless doesn't respect .editorconfig yet.
+                //   https://github.com/diffplug/spotless/issues/142
+                .editorConfigOverride(
+                    mapOf(
+                        "charset" to "utf-8",
+                        "end_of_line" to "lf",
+                        "trim_trailing_whitespace" to true,
+                        "insert_final_newline" to true,
+                        "indent_style" to "space",
+                        "indent_size" to 4,
+                        "ij_kotlin_allow_trailing_comma" to true,
+                        "ij_kotlin_allow_trailing_comma_on_call_site" to true
+                    )
+                )
+        }
     }
 }

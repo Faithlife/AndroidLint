@@ -9,7 +9,7 @@ class IssueRegistry : ApiIssueRegistry() {
         vendorName = "Faithlife",
         identifier = "android-lint",
         feedbackUrl = "https://github.com/Faithlife/AndroidLint/issues",
-        contact = "mobile@faithlife.com"
+        contact = "mobile@faithlife.com",
     )
 
     override val issues = listOf(
