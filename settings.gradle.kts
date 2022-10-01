@@ -3,12 +3,12 @@ include(":checks", ":library")
 dependencyResolutionManagement {
     versionCatalogs {
         create("lintLibs") {
-            version("kotlin", "1.7.0")
+            version("kotlin", "1.7.20")
             library("kotlinStd", "org.jetbrains.kotlin", "kotlin-stdlib-jdk8").versionRef("kotlin")
             library("kotlinReflect", "org.jetbrains.kotlin", "kotlin-reflect").versionRef("kotlin")
             bundle("kotlin", listOf("kotlinStd", "kotlinReflect"))
 
-            version("lint", "30.3.0-beta04")
+            version("lint", "30.3.0")
             library("lintApi", "com.android.tools.lint", "lint-api").versionRef("lint")
 
             library("lint", "com.android.tools.lint", "lint").versionRef("lint")
