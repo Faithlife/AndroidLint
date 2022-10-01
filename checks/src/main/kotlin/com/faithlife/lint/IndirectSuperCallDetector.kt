@@ -13,10 +13,9 @@ class IndirectSuperCallDetector : Detector(), SourceCodeScanner {
 
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
         override fun visitCallExpression(node: UCallExpression) {
-            val superTypes : Set<PsiClassType> = node.getContainingUClass()?.superTypes?.toHashSet() ?: emptySet()
             val containingMethod = node.getContainingUMethod()!!
 
-            if (containingMethod.name != node.methodName && node.receiverType in superTypes) {
+            if (containingMethod.name != node.methodName && node.receiverType in (node.getContainingUClass()?.superTypes ?: emptyArray())) {
                 context.report(ISSUE, context.getCallLocation(node, includeArguments = false, includeReceiver = true), "")
             }
         }
