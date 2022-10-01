@@ -56,4 +56,50 @@ class IndirectSuperCallDetectorTest : LintDetectorTest() {
             .run()
             .expectWarningCount(1)
     }
+
+    fun `test adjacent override call`() {
+        val code = """
+            package com.faithlife
+
+            open class Activity {
+                protected open fun onCreate() {}
+                protected open fun setTheme() {}
+            }
+
+            class SpecialActivity : Activity {
+                override fun onCreate() {
+                    setTheme()
+                }
+
+                override fun setTheme() {
+
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectClean()
+    }
+
+    fun `test adjacent super call with implicit receiver`() {
+        val code = """
+            package com.faithlife
+
+            open class Activity {
+                protected open fun onCreate() {}
+                protected open fun setTheme() {}
+            }
+
+            class SpecialActivity : Activity {
+                override fun onCreate() {
+                    setTheme()
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectClean()
+    }
 }
