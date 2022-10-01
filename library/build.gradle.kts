@@ -34,12 +34,3 @@ dependencies {
     implementation(project(":checks"))
     lintPublish(project(":checks"))
 }
-
-mavenPublishing {
-    signAllPublications()
-    publishToMavenCentral(SonatypeHost.DEFAULT)
-}
-
-mavenPublish {
-    androidVariantToPublish = "release"
-}
