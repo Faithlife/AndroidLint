@@ -15,7 +15,7 @@
 ### Changed
 - Updated build tooling
 - Treat lint warnings as errors for issues in this library
-- Add ktlint-gradle
+- Add spotless
 
 ## [1.1.6]
 ### Changed
