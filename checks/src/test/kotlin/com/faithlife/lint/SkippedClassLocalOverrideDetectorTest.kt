@@ -2,9 +2,9 @@ package com.faithlife.lint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 
-class IndirectSuperCallDetectorTest : LintDetectorTest() {
-    override fun getDetector() = IndirectSuperCallDetector()
-    override fun getIssues() = listOf(IndirectSuperCallDetector.ISSUE)
+class SkippedClassLocalOverrideDetectorTest : LintDetectorTest() {
+    override fun getDetector() = SkippedClassLocalOverrideDetector()
+    override fun getIssues() = listOf(SkippedClassLocalOverrideDetector.ISSUE)
 
     fun `test clean`() {
         val code = """
