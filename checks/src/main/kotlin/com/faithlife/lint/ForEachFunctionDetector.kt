@@ -11,11 +11,14 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.kotlin.KotlinUSafeQualifiedExpression
 
 class ForEachFunctionDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames(): List<String> = listOf("forEach", "forEachIndexed")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
+        if (node.uastParent is KotlinUSafeQualifiedExpression) return
+
         val receiverTypeClass = context.evaluator.getTypeClass(node.receiverType)
 
         if (receiverTypeClass != null && context.evaluator.inheritsFrom(receiverTypeClass, "java.lang.Iterable", false)) {
@@ -34,7 +37,7 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
             briefDescription = "Prefer language provided for loops for consistency",
             explanation = "Prefer language-provided for loops.",
             category = Category.PRODUCTIVITY,
-            severity = Severity.WARNING,
+            severity = Severity.INFORMATIONAL,
             implementation = Implementation(
                 ForEachFunctionDetector::class.java,
                 Scope.JAVA_FILE_SCOPE

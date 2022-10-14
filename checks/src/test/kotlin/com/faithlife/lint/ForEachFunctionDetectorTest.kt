@@ -10,6 +10,35 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ForEachFunctionDetector()
     override fun getIssues(): MutableList<Issue> = mutableListOf(ForEachFunctionDetector.ISSUE)
 
+    fun `test clean`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                for (it in listOf(1, 2, 3)) {
+                    println(it)
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run().expectClean()
+    }
+
+    fun `test clean nullable forEach receiver`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                val list: List<Int>? = if (System.currentTimeMillis() % 2 == 0) listOf(1, 2, 3) else null
+                list?.forEach { println(it) }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run().expectClean()
+    }
+
     fun `test forEach detected`() {
         val code = """
             package looper
@@ -20,6 +49,6 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
         """.trimIndent()
 
         lint().files(kotlin(code))
-            .run().expectCount(1, Severity.WARNING)
+            .run().expectCount(1, Severity.INFORMATIONAL)
     }
 }
