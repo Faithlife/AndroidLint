@@ -102,4 +102,26 @@ class SkippedClassLocalOverrideDetectorTest : LintDetectorTest() {
             .run()
             .expectClean()
     }
+
+    fun `test adjacent super call for overload`() {
+        val code = """
+            package com.faithlife
+
+            open class Activity {
+                protected open fun onCreate() {}
+                protected open fun onCreate(state: Int) {}
+            }
+
+            class SpecialActivity : Activity {
+                override fun onCreate() { }
+                override fun onCreate(state: Int) {
+                    super.onCreate()
+                }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectWarningCount(1)
+    }
 }
