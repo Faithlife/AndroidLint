@@ -10,7 +10,7 @@
   - `View` should use `findViewTreeLifecycleOwner()?.lifecycleScope`
 - A detector for else used as a `when` branch when the `when` subject has finite possibilities
   - This detector works best when applied to an app project with `lint.checkDependencies = true` in the app module AGP DSL.
-- A detector for `forEach` and `forEachIndexed` that encourages a language for loop replacement
+- `ForEachFunctionDetector` reports `forEach` and `forEachIndexed` use and encourages a language for loop replacement
 
 ### Changed
 - Updated build tooling
