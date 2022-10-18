@@ -24,7 +24,7 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
         if (receiverTypeClass != null && context.evaluator.inheritsFrom(receiverTypeClass, "java.lang.Iterable", false)) {
             Incident(context)
                 .issue(ISSUE)
-                .message("Bad") // todo
+                .message(MESSAGE)
                 .scope(node)
                 .location(context.getCallLocation(node, false, false))
                 .report()
@@ -32,10 +32,21 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
+        const val MESSAGE = "Prefer language-provided for loops."
         val ISSUE = Issue.create(
             id = "ForEachFunctionDetector",
             briefDescription = "Prefer language provided for loops for consistency",
-            explanation = "Prefer language-provided for loops.",
+            explanation = """
+                $MESSAGE
+
+                `forEach` and `forEachIndexed` often don’t provide a lot of semantic
+                benefit over using a Kotlin for loop but add some amount of ambiguity
+                to new programmers as to which should be preferred. Typically, collection
+                operators do not have side effects but rather transform a collection into
+                some other form. `forEach` and `forEachIndexed` demand side effects to be
+                useful. The functions also come with strange caveats around loop semantics
+                like break and continue.
+            """,
             category = Category.PRODUCTIVITY,
             severity = Severity.INFORMATIONAL,
             implementation = Implementation(
