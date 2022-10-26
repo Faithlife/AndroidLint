@@ -2,9 +2,9 @@ package com.faithlife.lint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 
-class SkippedClassLocalOverrideDetectorTest : LintDetectorTest() {
-    override fun getDetector() = SkippedClassLocalOverrideDetector()
-    override fun getIssues() = listOf(SkippedClassLocalOverrideDetector.ISSUE)
+class IndirectSuperCallDetectorTest : LintDetectorTest() {
+    override fun getDetector() = IndirectSuperCallDetector()
+    override fun getIssues() = listOf(IndirectSuperCallDetector.ISSUE)
 
     fun `test clean`() {
         val code = """
@@ -123,5 +123,21 @@ class SkippedClassLocalOverrideDetectorTest : LintDetectorTest() {
         lint().files(kotlin(code))
             .run()
             .expectWarningCount(1)
+    }
+
+    fun `test non-method call expressions do not crash`() {
+        val code = """
+            package com.faithlife;
+
+            class Activity {
+                public void onCreate() {
+                    var values = new int[] { 0, 12, 3 };
+                }
+            }
+        """.trimIndent()
+
+        lint().files(java(code))
+            .run()
+            .expectClean()
     }
 }

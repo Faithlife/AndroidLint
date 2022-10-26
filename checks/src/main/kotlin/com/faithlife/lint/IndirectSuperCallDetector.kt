@@ -10,15 +10,23 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UQualifiedReferenceExpression
+import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
 
-class SkippedClassLocalOverrideDetector : Detector(), SourceCodeScanner {
+class IndirectSuperCallDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UCallExpression::class.java)
 
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
         override fun visitCallExpression(node: UCallExpression) {
-            val method = checkNotNull(node.resolve()) { "A call expression must resolve to a method." }
+            if ((node.uastParent as? UQualifiedReferenceExpression)?.receiver !is USuperExpression) {
+                return
+            }
+
+            val method = checkNotNull(node.resolve()) {
+                "A super call expression must resolve to a method."
+            }
 
             val hasClassLocalOverride = node.getContainingUClass()?.methods
                 ?.mapNotNull(context.evaluator::getSuperMethod)
@@ -39,9 +47,9 @@ class SkippedClassLocalOverrideDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val MESSAGE = "Explicit super calls should only appear in corresponding overrides."
+        const val MESSAGE = "Explicit super calls should only appear in corresponding overrides."
         val ISSUE = Issue.create(
-            id = "IndirectSuperCallDirector",
+            id = "IndirectSuperCall",
             briefDescription = "Only call super methods from overrides",
             explanation = """
                 Calling super methods that have side effects (like many Android lifecycle methods)
@@ -52,7 +60,7 @@ class SkippedClassLocalOverrideDetector : Detector(), SourceCodeScanner {
             category = Category.CORRECTNESS,
             severity = Severity.WARNING,
             implementation = Implementation(
-                SkippedClassLocalOverrideDetector::class.java,
+                IndirectSuperCallDetector::class.java,
                 Scope.JAVA_FILE_SCOPE,
             ),
         )
