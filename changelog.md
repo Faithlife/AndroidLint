@@ -10,6 +10,7 @@
   - `View` should use `findViewTreeLifecycleOwner()?.lifecycleScope`
 - `FiniteWhenCasesDetector` warns when `else` is used as a `when` branch when the `when` subject has finite possibilities
   - This detector works best when applied to an app project with `lint.checkDependencies = true` in the app module AGP DSL.
+- `ForEachFunctionDetector` reports `forEach` and `forEachIndexed` use and encourages a language for loop replacement
 - `SkippedClassLocalOverrideDetector` warns when an explicit super method is called outside of the corresponding override.
 
 ### Changed
