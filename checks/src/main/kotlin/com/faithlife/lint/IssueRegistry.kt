@@ -15,6 +15,7 @@ class IssueRegistry : ApiIssueRegistry() {
     override val issues = listOf(
         FiniteWhenCasesDetector.ISSUE,
         ForEachFunctionDetector.ISSUE,
+        IndirectSuperCallDetector.ISSUE,
         ObsoleteDateInstantiationDetector.ISSUE,
         RedundantCoroutineScopeDetector.ISSUE,
         SimpleDateFormatDetector.ISSUE,

@@ -2,20 +2,21 @@
 
 ## [Unreleased]
 ### Added
-- A detector when an `androidx.lifecycle.LifecycleOwner`, `androidx.lifecycle.ViewModel`, or `android.view.View` implements or has a field assignable to `kotlinx.coroutines.CoroutineScope`.
+- `RedundantCoroutineScopeDetector` warns when a `androidx.lifecycle.LifecycleOwner`, `androidx.lifecycle.ViewModel`, or `android.view.View` implements or has a field assignable to `kotlinx.coroutines.CoroutineScope`.
   Existing scopes are bound to relevant lifecycle events in the system and will prevent coroutines from running past their utility.
   - `LifecycleOwner` should use `lifecycleScope`
   - `Fragment` should use `viewLifecycleOwner.lifecycleScope`,
   - `ViewModel` should use `viewModelScope`
   - `View` should use `findViewTreeLifecycleOwner()?.lifecycleScope`
-- A detector for else used as a `when` branch when the `when` subject has finite possibilities
+- `FiniteWhenCasesDetector` warns when `else` is used as a `when` branch when the `when` subject has finite possibilities
   - This detector works best when applied to an app project with `lint.checkDependencies = true` in the app module AGP DSL.
 - `ForEachFunctionDetector` reports `forEach` and `forEachIndexed` use and encourages a language for loop replacement
+- `SkippedClassLocalOverrideDetector` warns when an explicit super method is called outside of the corresponding override.
 
 ### Changed
 - Updated build tooling
 - Treat lint warnings as errors for issues in this library
-- Add ktlint-gradle
+- Add spotless
 
 ## [1.1.6]
 ### Changed
