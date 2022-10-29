@@ -7,7 +7,7 @@ val JAVA_VERSION: String by properties
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
-    id("org.jetbrains.changelog") version "1.3.1"
+    id("org.jetbrains.changelog") version "2.0.0"
     id("com.diffplug.spotless") version "6.11.0" apply false
 }
 
