@@ -77,10 +77,12 @@ class ErrorCatchDetectorTest : LintDetectorTest() {
         """.trimIndent()
 
         lint().files(kotlin(code))
-            .run().expect("""src/error/ErrorHandler.kt:9: Error: Errors should not be caught. [ErrorCatchDetector]
+            .run().expect(
+                """src/error/ErrorHandler.kt:9: Error: Errors should not be caught. [ErrorCatchDetector]
         } catch (e: OutOfMemoryError) {
                     ~~~~~~~~~~~~~~~~
-1 errors, 0 warnings""")
+1 errors, 0 warnings""",
+            )
     }
 
     @Test
@@ -131,12 +133,14 @@ class ErrorCatchDetectorTest : LintDetectorTest() {
         """.trimIndent()
 
         lint().files(java(code))
-            .run().expect("""src/error/ErrorHandler.java:10: Error: Errors should not be caught. [ErrorCatchDetector]
+            .run().expect(
+                """src/error/ErrorHandler.java:10: Error: Errors should not be caught. [ErrorCatchDetector]
         } catch (OutOfMemoryError | Throwable | Exception e) {
                  ~~~~~~~~~~~~~~~~
 src/error/ErrorHandler.java:10: Error: Catching Throwable will include Errors. Be more specific. [ThrowableCatchDetector]
         } catch (OutOfMemoryError | Throwable | Exception e) {
                                     ~~~~~~~~~
-2 errors, 0 warnings""")
+2 errors, 0 warnings""",
+            )
     }
 }
