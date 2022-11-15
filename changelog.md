@@ -12,6 +12,7 @@
   - This detector works best when applied to an app project with `lint.checkDependencies = true` in the app module AGP DSL.
 - `ForEachFunctionDetector` reports `forEach` and `forEachIndexed` use and encourages a language for loop replacement
 - `SkippedClassLocalOverrideDetector` warns when an explicit super method is called outside of the corresponding override.
+- `ErrorCatchDetector` reports an error when a catch block might catch a `java.lang.Error` type.
 
 ### Changed
 - Updated build tooling
