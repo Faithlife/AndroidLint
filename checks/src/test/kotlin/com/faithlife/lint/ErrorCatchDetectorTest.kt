@@ -5,7 +5,10 @@ import org.junit.Test
 
 class ErrorCatchDetectorTest : LintDetectorTest() {
     override fun getDetector() = ErrorCatchDetector()
-    override fun getIssues() = listOf(ErrorCatchDetector.ISSUE)
+    override fun getIssues() = listOf(
+        ErrorCatchDetector.ISSUE_CATCH_TOO_GENERIC,
+        ErrorCatchDetector.ISSUE_ERROR_CAUGHT,
+    )
 
     @Test
     fun `test clean`() {

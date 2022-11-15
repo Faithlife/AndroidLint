@@ -13,6 +13,8 @@ class IssueRegistry : ApiIssueRegistry() {
     )
 
     override val issues = listOf(
+        ErrorCatchDetector.ISSUE_CATCH_TOO_GENERIC,
+        ErrorCatchDetector.ISSUE_ERROR_CAUGHT,
         FiniteWhenCasesDetector.ISSUE,
         ForEachFunctionDetector.ISSUE,
         IndirectSuperCallDetector.ISSUE,

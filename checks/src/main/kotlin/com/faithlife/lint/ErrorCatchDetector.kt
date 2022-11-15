@@ -20,7 +20,8 @@ class ErrorCatchDetector : Detector(), SourceCodeScanner {
     override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
         override fun visitCatchClause(node: UCatchClause) {
             @Suppress("UNCHECKED_CAST")
-            val typeClassesToTypes = node.types.associateBy(context.evaluator::getTypeClass)
+            val typeClassesToTypes = node.types
+                .associateBy(context.evaluator::getTypeClass)
                 .filterKeys { it != null } as Map<PsiClass, PsiType>
 
             val isTooGeneric = typeClassesToTypes.keys.firstOrNull { typeClass ->
@@ -30,11 +31,12 @@ class ErrorCatchDetector : Detector(), SourceCodeScanner {
             if (isTooGeneric != null) {
                 val typeInCatchList = typeClassesToTypes[isTooGeneric]
                 Incident(context)
-                    .issue(createIssue(TOO_GENERIC_MESSAGE))
+                    .issue(ISSUE_CATCH_TOO_GENERIC)
                     .message(TOO_GENERIC_MESSAGE)
                     .scope(node)
                     .location(context.getLocation(typeInCatchList))
                     .report()
+
                 return
             }
 
@@ -45,11 +47,12 @@ class ErrorCatchDetector : Detector(), SourceCodeScanner {
             if (isError != null) {
                 val typeInCatchList = typeClassesToTypes[isError]
                 Incident(context)
-                    .issue(createIssue(ERROR_CAUGHT_MESSAGE))
+                    .issue(ISSUE_ERROR_CAUGHT)
                     .message(ERROR_CAUGHT_MESSAGE)
                     .scope(node)
                     .location(context.getLocation(typeInCatchList))
                     .report()
+
                 return
             }
         }
@@ -58,24 +61,40 @@ class ErrorCatchDetector : Detector(), SourceCodeScanner {
     companion object {
         private const val TOO_GENERIC_MESSAGE = "Catching Throwable will include Errors. Be more specific."
         private const val ERROR_CAUGHT_MESSAGE = "Errors should not be caught."
+        private const val DESC = "Catch blocks should not handle java.lang.Error"
+        private fun createExplanation(message: String) = """
+            $message
 
-        private fun createIssue(message: String): Issue {
-            return Issue.create(
-                "ErrorCatchDetector",
-                "A catch expression can catch an Error.",
-                """
-                $message
+            Catching errors can further complicate stacktraces and error investigation
+            in general. `java.lang.Error` and subtypes should not be caught. They indicate
+            a terminal program state that is best served by crashing quickly in order to provide
+            the best view of application state that lead to the `Error` being thrown.
+        """
 
-                Catching errors can further complicate
-            """,
-                moreInfo = "https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Error.html",
-                category = Category.CORRECTNESS,
-                severity = Severity.ERROR,
-                implementation = Implementation(
-                    ErrorCatchDetector::class.java,
-                    Scope.JAVA_FILE_SCOPE,
-                ),
-            )
-        }
+        val ISSUE_CATCH_TOO_GENERIC = Issue.create(
+            "ThrowableCatchDetector",
+            DESC,
+            createExplanation(TOO_GENERIC_MESSAGE),
+            moreInfo = "https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Error.html",
+            category = Category.CORRECTNESS,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                ErrorCatchDetector::class.java,
+                Scope.JAVA_FILE_SCOPE,
+            ),
+        )
+
+        val ISSUE_ERROR_CAUGHT = Issue.create(
+            "ErrorCatchDetector",
+            DESC,
+            createExplanation(ERROR_CAUGHT_MESSAGE),
+            moreInfo = "https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Error.html",
+            category = Category.CORRECTNESS,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                ErrorCatchDetector::class.java,
+                Scope.JAVA_FILE_SCOPE,
+            ),
+        )
     }
 }
