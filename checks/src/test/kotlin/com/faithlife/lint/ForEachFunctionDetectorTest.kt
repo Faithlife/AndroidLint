@@ -51,4 +51,136 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
         lint().files(kotlin(code))
             .run().expectCount(1, Severity.INFORMATIONAL)
     }
+
+    fun `test fix forEach implicit parameter`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                listOf(1, 2, 3).forEach { println(it) }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 4: Replace with language-provided for loops:
+            @@ -4 +4
+            -     listOf(1, 2, 3).forEach { println(it) }
+            +     for (it in listOf(1, 2, 3)) { println(it) }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
+    }
+
+    fun `test fix forEach explicit parameter`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                listOf(1, 2, 3).forEach { param -> println(param) }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 4: Replace with language-provided for loops:
+            @@ -4 +4
+            -     listOf(1, 2, 3).forEach { param -> println(param) }
+            +     for (param in listOf(1, 2, 3)) { println(param) }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
+    }
+
+    fun `test fix forEach multiple lines`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                listOf(1, 2, 3).forEach {
+                    println(it)
+                }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 4: Replace with language-provided for loops:
+            @@ -4 +4
+            -     listOf(1, 2, 3).forEach {
+            +     for (it in listOf(1, 2, 3)) {
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
+    }
+
+    fun `test fix forEach multiple lines with parameter`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                listOf(1, 2, 3).forEach { param ->
+                    println(param)
+                }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 4: Replace with language-provided for loops:
+            @@ -4 +4
+            -     listOf(1, 2, 3).forEach { param ->
+            +     for (param in listOf(1, 2, 3)) {
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
+    }
+
+    fun `test fix forEachIndexed`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                listOf(1, 2, 3).forEachIndexed { index, i -> println() }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 4: Replace with language-provided for loops:
+            @@ -4 +4
+            -     listOf(1, 2, 3).forEachIndexed { index, i -> println() }
+            +     for ((index, i) in listOf(1, 2, 3).withIndex()) { println() }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
+    }
+
+    fun `test fix forEachIndexed multiple lines`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                listOf(1, 2, 3).forEachIndexed { index, i ->
+                    println()
+                }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 4: Replace with language-provided for loops:
+            @@ -4 +4
+            -     listOf(1, 2, 3).forEachIndexed { index, i ->
+            +     for ((index, i) in listOf(1, 2, 3).withIndex()) {
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
+    }
 }
