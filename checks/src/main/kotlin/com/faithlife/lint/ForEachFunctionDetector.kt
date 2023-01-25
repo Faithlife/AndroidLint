@@ -42,8 +42,8 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
             val fix = fix()
                 .name("Replace with language-provided for loops", useAsFamilyNameToo = true)
                 .replace()
-                    .range(context.getRangeLocation(receiver.sourcePsi!!, 0, endElement, 0))
-                    .with(replacementText)
+                .range(context.getRangeLocation(receiver.sourcePsi!!, 0, endElement, 0))
+                .with(replacementText)
                 .build()
 
             Incident(context)
