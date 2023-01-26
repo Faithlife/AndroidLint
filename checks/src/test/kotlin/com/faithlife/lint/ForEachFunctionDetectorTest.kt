@@ -183,4 +183,21 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
             .run()
             .expectFixDiffs(fixedCode)
     }
+
+    fun `test wrong forEach clean`() {
+        val code = """
+            package looper
+
+            class Loop : Iterable<Int> {
+                fun forEach (i: Int) {}
+            }
+
+            fun loopTester() {
+                Loop().forEach(1)
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run().expectClean()
+    }
 }

@@ -19,7 +19,11 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
         listOf(FOR_EACH_NAME, FOR_EACH_INDEXED_NAME)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (node.uastParent is KotlinUSafeQualifiedExpression) return
+        if (node.uastParent is KotlinUSafeQualifiedExpression ||
+            context.evaluator.getPackage(method)?.qualifiedName != "kotlin.collections"
+        ) {
+            return
+        }
 
         val receiver = node.receiver
         val receiverTypeClass = context.evaluator.getTypeClass(node.receiverType)
