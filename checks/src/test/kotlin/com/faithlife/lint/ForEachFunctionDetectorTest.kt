@@ -52,6 +52,19 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
             .run().expectCount(1, Severity.INFORMATIONAL)
     }
 
+    fun `test forEach implicit receiver detected`() {
+        val code = """
+            package looper
+
+            fun List<Int>.loopTester() {
+                forEach { println(it) }
+            }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run().expectCount(1, Severity.INFORMATIONAL)
+    }
+
     fun `test fix forEach implicit parameter`() {
         val code = """
             package looper
@@ -140,7 +153,7 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
             .expectFixDiffs(fixedCode)
     }
 
-    fun `test fix forEachIndexed`() {
+    fun `test fix forEachIndexed function receiver`() {
         val code = """
             package looper
 
@@ -154,6 +167,28 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
             @@ -4 +4
             -     listOf(1, 2, 3).forEachIndexed { index, i -> println() }
             +     for ((index, i) in listOf(1, 2, 3).withIndex()) { println() }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
+    }
+
+    fun `test fix forEachIndexed reference receiver`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                val list = listOf(1, 2, 3)
+                list.forEachIndexed { index, i -> println() }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 5: Replace with language-provided for loops:
+            @@ -5 +5
+            -     list.forEachIndexed { index, i -> println() }
+            +     for ((index, i) in list.withIndex()) { println() }
         """.trimIndent()
 
         lint().files(kotlin(code))
@@ -199,5 +234,47 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
 
         lint().files(kotlin(code))
             .run().expectClean()
+    }
+
+    fun `test fix forEach implicit receiver`() {
+        val code = """
+            package looper
+
+            fun List<Int>.loopTester() {
+                forEach { println(it) }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 4: Replace with language-provided for loops:
+            @@ -4 +4
+            -     forEach { println(it) }
+            +     for (it in this) { println(it) }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
+    }
+
+    fun `test fix forEachIndexed implicit receiver`() {
+        val code = """
+            package looper
+
+            fun List<Int>.loopTester() {
+                forEachIndexed { index, i -> println(i) }
+            }
+        """.trimIndent()
+
+        val fixedCode = """
+            Fix for src/looper/test.kt line 4: Replace with language-provided for loops:
+            @@ -4 +4
+            -     forEachIndexed { index, i -> println(i) }
+            +     for ((index, i) in withIndex()) { println(i) }
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run()
+            .expectFixDiffs(fixedCode)
     }
 }

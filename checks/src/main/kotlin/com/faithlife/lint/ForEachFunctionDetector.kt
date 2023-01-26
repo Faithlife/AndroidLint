@@ -25,28 +25,30 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
             return
         }
 
-        val receiver = node.receiver
         val receiverTypeClass = context.evaluator.getTypeClass(node.receiverType)
 
-        if (receiver != null && receiverTypeClass != null && context.evaluator.inheritsFrom(receiverTypeClass, "java.lang.Iterable", false)) {
+        if (receiverTypeClass != null && context.evaluator.inheritsFrom(receiverTypeClass, "java.lang.Iterable", false)) {
             val lambda = node.valueArguments.first().sourcePsi as KtLambdaExpression
-            val receiverName = receiver.asSourceString()
 
+            val receiver = node.receiver?.sourcePsi
             val replacementText = if (method.name == FOR_EACH_INDEXED_NAME) {
+                val receiverName = if (receiver != null) "${receiver.text}." else ""
                 val firstParameter = lambda.valueParameters[0].text
                 val secondParameter = lambda.valueParameters[1].text
-                "for (($firstParameter, $secondParameter) in $receiverName.withIndex()) {"
+                "for (($firstParameter, $secondParameter) in ${receiverName}withIndex()) {"
             } else {
+                val receiverName = receiver?.text ?: "this"
                 val parameterName = lambda.valueParameters.firstOrNull()?.text ?: "it"
                 "for ($parameterName in $receiverName) {"
             }
 
+            val startElement = (node.receiver ?: node).sourcePsi!!
             val endElement = lambda.functionLiteral.arrow ?: lambda.leftCurlyBrace.psi
 
             val fix = fix()
                 .name("Replace with language-provided for loops", useAsFamilyNameToo = true)
                 .replace()
-                .range(context.getRangeLocation(receiver.sourcePsi!!, 0, endElement, 0))
+                .range(context.getRangeLocation(startElement, 0, endElement, 0))
                 .with(replacementText)
                 .build()
 
