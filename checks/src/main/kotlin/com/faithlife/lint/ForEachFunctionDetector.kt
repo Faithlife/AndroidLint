@@ -10,23 +10,56 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.kotlin.KotlinULambdaExpression
 import org.jetbrains.uast.kotlin.KotlinUSafeQualifiedExpression
 
 class ForEachFunctionDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames(): List<String> = listOf("forEach", "forEachIndexed")
+    override fun getApplicableMethodNames(): List<String> =
+        listOf(FOR_EACH_NAME, FOR_EACH_INDEXED_NAME)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (node.uastParent is KotlinUSafeQualifiedExpression) return
+        if (context.evaluator.getPackage(method)?.qualifiedName != "kotlin.collections" ||
+            node.uastParent is KotlinUSafeQualifiedExpression ||
+            node.valueArguments.first() !is KotlinULambdaExpression
+        ) {
+            return
+        }
 
         val receiverTypeClass = context.evaluator.getTypeClass(node.receiverType)
 
         if (receiverTypeClass != null && context.evaluator.inheritsFrom(receiverTypeClass, "java.lang.Iterable", false)) {
+            val lambda = node.valueArguments.first().sourcePsi as KtLambdaExpression
+
+            val receiver = node.receiver?.sourcePsi
+            val replacementText = if (method.name == FOR_EACH_INDEXED_NAME) {
+                val receiverName = if (receiver != null) "${receiver.text}." else ""
+                val firstParameter = lambda.valueParameters[0].text
+                val secondParameter = lambda.valueParameters[1].text
+                "for (($firstParameter, $secondParameter) in ${receiverName}withIndex()) {"
+            } else {
+                val receiverName = receiver?.text ?: "this"
+                val parameterName = lambda.valueParameters.firstOrNull()?.text ?: "it"
+                "for ($parameterName in $receiverName) {"
+            }
+
+            val startElement = (node.receiver ?: node).sourcePsi!!
+            val endElement = lambda.functionLiteral.arrow ?: lambda.leftCurlyBrace.psi
+
+            val fix = fix()
+                .name("Replace with language-provided for loops", useAsFamilyNameToo = true)
+                .replace()
+                .range(context.getRangeLocation(startElement, 0, endElement, 0))
+                .with(replacementText)
+                .build()
+
             Incident(context)
                 .issue(ISSUE)
                 .message(MESSAGE)
                 .scope(node)
                 .location(context.getCallLocation(node, false, false))
+                .fix(fix)
                 .report()
         }
     }
@@ -54,5 +87,8 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
                 Scope.JAVA_FILE_SCOPE,
             ),
         )
+
+        private const val FOR_EACH_NAME = "forEach"
+        private const val FOR_EACH_INDEXED_NAME = "forEachIndexed"
     }
 }
