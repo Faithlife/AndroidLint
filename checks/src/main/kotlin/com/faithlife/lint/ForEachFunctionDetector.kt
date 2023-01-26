@@ -12,6 +12,7 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.kotlin.KotlinULambdaExpression
 import org.jetbrains.uast.kotlin.KotlinUSafeQualifiedExpression
 
 class ForEachFunctionDetector : Detector(), SourceCodeScanner {
@@ -19,8 +20,9 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
         listOf(FOR_EACH_NAME, FOR_EACH_INDEXED_NAME)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (node.uastParent is KotlinUSafeQualifiedExpression ||
-            context.evaluator.getPackage(method)?.qualifiedName != "kotlin.collections"
+        if (context.evaluator.getPackage(method)?.qualifiedName != "kotlin.collections" ||
+            node.uastParent is KotlinUSafeQualifiedExpression ||
+            node.valueArguments.first() !is KotlinULambdaExpression
         ) {
             return
         }

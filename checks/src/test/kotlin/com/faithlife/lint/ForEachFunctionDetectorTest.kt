@@ -39,6 +39,21 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
             .run().expectClean()
     }
 
+    fun `test clean function reference argument`() {
+        val code = """
+            package looper
+
+            fun loopTester() {
+                listOf(1, 2, 3).forEach(::doSomething)
+            }
+
+            fun doSomething(i: Int) {}
+        """.trimIndent()
+
+        lint().files(kotlin(code))
+            .run().expectClean()
+    }
+
     fun `test forEach detected`() {
         val code = """
             package looper
@@ -219,7 +234,7 @@ class ForEachFunctionDetectorTest : LintDetectorTest() {
             .expectFixDiffs(fixedCode)
     }
 
-    fun `test wrong forEach clean`() {
+    fun `test clean wrong forEach`() {
         val code = """
             package looper
 
