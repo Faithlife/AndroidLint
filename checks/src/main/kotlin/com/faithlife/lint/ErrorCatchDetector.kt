@@ -22,7 +22,7 @@ class ErrorCatchDetector : Detector(), SourceCodeScanner {
                     Incident(context)
                         .issue(ISSUE_CATCH_TOO_GENERIC)
                         .message(TOO_GENERIC_MESSAGE)
-                        .scope(node)
+                        .scope(typeRef)
                         .location(context.getLocation(typeRef))
                         .report()
                 }
@@ -32,7 +32,7 @@ class ErrorCatchDetector : Detector(), SourceCodeScanner {
                     Incident(context)
                         .issue(ISSUE_ERROR_CAUGHT)
                         .message(ERROR_CAUGHT_MESSAGE)
-                        .scope(node)
+                        .scope(typeRef)
                         .location(context.getLocation(typeRef))
                         .report()
                 }

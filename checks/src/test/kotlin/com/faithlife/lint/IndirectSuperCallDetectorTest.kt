@@ -1,6 +1,7 @@
 package com.faithlife.lint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 
 class IndirectSuperCallDetectorTest : LintDetectorTest() {
     override fun getDetector() = IndirectSuperCallDetector()
@@ -8,8 +9,6 @@ class IndirectSuperCallDetectorTest : LintDetectorTest() {
 
     fun `test clean`() {
         val code = """
-            package com.faithlife
-
             open class Activity {
                 open fun onCreate() {
                 }
@@ -27,15 +26,15 @@ class IndirectSuperCallDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectClean()
     }
 
     fun `test adjacent super call`() {
         val code = """
-            package com.faithlife
-
             open class Activity {
                 open fun onCreate() {
                 }
@@ -52,15 +51,16 @@ class IndirectSuperCallDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
+            .skipTestModes(TestMode.JVM_OVERLOADS)
             .run()
             .expectWarningCount(1)
     }
 
     fun `test adjacent override call`() {
         val code = """
-            package com.faithlife
-
             open class Activity {
                 protected open fun onCreate() {}
                 protected open fun setTheme() {}
@@ -77,15 +77,15 @@ class IndirectSuperCallDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectClean()
     }
 
     fun `test adjacent super call with implicit receiver`() {
         val code = """
-            package com.faithlife
-
             open class Activity {
                 protected open fun onCreate() {}
                 protected open fun setTheme() {}
@@ -98,15 +98,15 @@ class IndirectSuperCallDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectClean()
     }
 
     fun `test adjacent super call for overload`() {
         val code = """
-            package com.faithlife
-
             open class Activity {
                 protected open fun onCreate() {}
                 protected open fun onCreate(state: Int) {}
@@ -120,15 +120,16 @@ class IndirectSuperCallDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
+            .testModes(TestMode.DEFAULT)
             .run()
             .expectWarningCount(1)
     }
 
     fun `test non-method call expressions do not crash`() {
         val code = """
-            package com.faithlife;
-
             class Activity {
                 public void onCreate() {
                     var values = new int[] { 0, 12, 3 };
@@ -136,7 +137,9 @@ class IndirectSuperCallDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(java(code))
+        lint()
+            .allowMissingSdk()
+            .files(java(code))
             .run()
             .expectClean()
     }

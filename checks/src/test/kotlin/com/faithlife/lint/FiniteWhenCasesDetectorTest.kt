@@ -1,19 +1,13 @@
 package com.faithlife.lint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
-import org.junit.Test
 
 class FiniteWhenCasesDetectorTest : LintDetectorTest() {
     override fun getDetector() = FiniteWhenCasesDetector()
     override fun getIssues() = listOf(FiniteWhenCasesDetector.ISSUE)
 
-    @Test
     fun `test check else used in when with enum subject`() {
         val code = """
-            package com.faithlife
-
-            import java.util.ArrayDeque
-
             enum class MessageKind {
                 Text,
                 Media,
@@ -22,7 +16,7 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             data class Message(val id: String, val kind: MessageKind)
 
             class MessageProcessor {
-                private val queue = ArrayDeque<Message>()
+                private val queue = java.util.ArrayDeque<Message>()
                 fun pump() {
                     val message = queue.poll()
                     when (message.kind) {
@@ -33,18 +27,15 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectWarningCount(1)
     }
 
-    @Test
     fun `test check else used in when with sealed type subject`() {
         val code = """
-            package com.faithlife
-
-            import java.util.ArrayDeque
-
             sealed interface MessageKind {
                 object Text : MessageKind
                 object Media : MessageKind
@@ -53,7 +44,7 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             data class Message(val id: String, val kind: MessageKind)
 
             class MessageProcessor {
-                private val queue = ArrayDeque<Message>()
+                private val queue = java.util.ArrayDeque<Message>()
                 fun pump() {
                     val message = queue.poll()
                     when (message.kind) {
@@ -64,18 +55,15 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectWarningCount(1)
     }
 
-    @Test
     fun `test check else used in when with nested sealed type subject`() {
         val code = """
-            package com.faithlife
-
-            import java.util.ArrayDeque
-
             sealed interface MessageKind {
                 object Text : MessageKind
                 sealed interface Media : MessageKind {
@@ -87,7 +75,7 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             data class Message(val id: String, val kind: MessageKind)
 
             class MessageProcessor {
-                private val queue = ArrayDeque<Message>()
+                private val queue = java.util.ArrayDeque<Message>()
                 fun pump() {
                     val message = queue.poll()
                     val kind = message.kind as MessageKind.Media
@@ -99,46 +87,43 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectWarningCount(1)
     }
 
-    @Test
     fun `test clean framework subject`() {
         val code = """
-            package com.faithlife
-
-            import java.util.ArrayDeque
-            import java.time
-
-            data class Message(val id: String, val daySent: DayOfWeek)
+            data class Message(val id: String, val daySent: java.time.DayOfWeek)
 
             class MessageProcessor {
-                private val queue = ArrayDeque<Message>()
+                private val queue = java.util.ArrayDeque<Message>()
                 fun pump() {
                     val message = queue.poll()
                     when (message.daySent) {
-                       MessageKind.Text -> {}
-                       MessageKind.Media -> {}
-                       else -> {}
+                        DayOfWeek.MONDAY -> {}
+                        DayOfWeek.TUESDAY -> {}
+                        DayOfWeek.WEDNESDAY -> {}
+                        DayOfWeek.THURSDAY -> {}
+                        DayOfWeek.FRIDAY -> {}
+                        DayOfWeek.SATURDAY -> {}
+                        DayOfWeek.SUNDAY -> {}
                     }
                 }
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectClean()
     }
 
-    @Test
     fun `test clean`() {
         val code = """
-            package com.faithlife
-
-            import java.util.ArrayDeque
-
             enum class MessageKind {
                 Text,
                 Media,
@@ -147,7 +132,7 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             data class Message(val id: String, val kind: MessageKind)
 
             class MessageProcessor {
-                private val queue = ArrayDeque<Message>()
+                private val queue = java.util.ArrayDeque<Message>()
                 fun pump() {
                     val message = queue.poll()
                     when (message.kind) {
@@ -158,18 +143,16 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectClean()
     }
 
-    @Test
+    @Suppress("IntroduceWhenSubject")
     fun `test clean no subject`() {
         val code = """
-            package com.faithlife
-
-            import java.util.ArrayDeque
-
             enum class MessageKind {
                 Text,
                 Media,
@@ -178,7 +161,7 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             data class Message(val id: String, val kind: MessageKind)
 
             class MessageProcessor {
-                private val queue = ArrayDeque<Message>()
+                private val queue = java.util.ArrayDeque<Message>()
                 fun pump() {
                     val message = queue.poll()
                     when {
@@ -189,7 +172,9 @@ class FiniteWhenCasesDetectorTest : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectClean()
     }

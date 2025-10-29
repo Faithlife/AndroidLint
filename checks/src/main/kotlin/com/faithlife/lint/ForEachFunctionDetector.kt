@@ -17,6 +17,7 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames(): List<String> = listOf("forEach", "forEachIndexed")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
+        @Suppress("UnstableApiUsage")
         if (node.uastParent is KotlinUSafeQualifiedExpression) return
 
         val receiverTypeClass = context.evaluator.getTypeClass(node.receiverType)
@@ -26,7 +27,13 @@ class ForEachFunctionDetector : Detector(), SourceCodeScanner {
                 .issue(ISSUE)
                 .message(MESSAGE)
                 .scope(node)
-                .location(context.getCallLocation(node, false, false))
+                .location(
+                    context.getCallLocation(
+                        node,
+                        includeReceiver = false,
+                        includeArguments = false,
+                    ),
+                )
                 .report()
         }
     }

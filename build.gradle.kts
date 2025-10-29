@@ -1,4 +1,5 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val VERSION_NAME: String by properties
@@ -7,7 +8,7 @@ val JAVA_VERSION: String by properties
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
-    id("org.jetbrains.changelog") version "2.0.0"
+    id("org.jetbrains.changelog") version "2.4.0"
     id("com.diffplug.spotless") version "6.11.0" apply false
 }
 
@@ -18,9 +19,9 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:7.3.0")
+        classpath("com.android.tools.build:gradle:8.13.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${lintLibs.versions.kotlin.get()}")
-        classpath("com.vanniktech:gradle-maven-publish-plugin:0.22.0")
+        classpath("com.vanniktech:gradle-maven-publish-plugin:0.34.0")
     }
 }
 
@@ -39,8 +40,10 @@ allprojects {
 
     tasks {
         withType<KotlinCompile>().configureEach {
-            kotlinOptions.jvmTarget = JAVA_VERSION
-            kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
+            compilerOptions {
+                jvmTarget.set(JvmTarget.fromTarget(JAVA_VERSION))
+                freeCompilerArgs.add("-Xcontext-receivers")
+            }
         }
 
         withType<JavaCompile>().configureEach {

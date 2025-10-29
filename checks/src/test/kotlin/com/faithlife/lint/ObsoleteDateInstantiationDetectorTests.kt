@@ -1,44 +1,35 @@
 package com.faithlife.lint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
-import org.junit.Test
 
 class ObsoleteDateInstantiationDetectorTests : LintDetectorTest() {
     override fun getDetector() = ObsoleteDateInstantiationDetector()
     override fun getIssues() = listOf(ObsoleteDateInstantiationDetector.ISSUE)
 
-    @Test
     fun `test Date detected`() {
         val code = """
-            package com.faithlife
-
-            import java.util.Date
-
             class Dater {
                 fun test() {
-                    val formatter = Date(1244)
+                    val formatter = java.util.Date(1244)
                 }
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expect(
-                """src/com/faithlife/Dater.kt:7: Warning: Use Java 8 time APIs instead [ObsoleteDateInstantiationDetector]
-            |        val formatter = Date(1244)
-            |                        ~~~~~~~~~~
+                """src/Dater.kt:3: Warning: Use Java 8 time APIs instead [ObsoleteDateInstantiationDetector]
+            |        val formatter = java.util.Date(1244)
+            |                        ~~~~~~~~~~~~~~~~~~~~
             |0 errors, 1 warnings
                 """.trimMargin(),
             )
     }
 
-    @Test
     fun `test clean`() {
         val code = """
-            package com.faithlife
-
-            import java.time.Instant
-
             class Dater {
                 fun test() {
                     val formatter = Instant.ofEpochMilli(1244)
@@ -46,7 +37,9 @@ class ObsoleteDateInstantiationDetectorTests : LintDetectorTest() {
             }
         """.trimIndent()
 
-        lint().files(kotlin(code))
+        lint()
+            .allowMissingSdk()
+            .files(kotlin(code))
             .run()
             .expectClean()
     }

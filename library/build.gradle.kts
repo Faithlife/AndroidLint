@@ -8,11 +8,19 @@ plugins {
 val JAVA_VERSION: String by properties
 
 android {
-    compileSdk = 33
+    namespace = "com.faithlife.lint"
+    compileSdk = 36
 
     defaultConfig {
-        minSdk = 25
-        targetSdk = 33
+        minSdk = 30
+    }
+
+    testOptions {
+        targetSdk = 35
+    }
+
+    lint {
+        targetSdk = 35
     }
 
     compileOptions {
