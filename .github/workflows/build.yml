@@ -37,8 +37,8 @@ jobs:
           CHANGELOG="${CHANGELOG//'%'/'%25'}"
           CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
           CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
-          echo "::set-output name=version::$VERSION"
-          echo "::set-output name=changelog::$CHANGELOG"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
 
     - name: Run checks
       run: ./gradlew check
