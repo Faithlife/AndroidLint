@@ -17,6 +17,7 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.ULiteralExpression
 import org.jetbrains.uast.UReferenceExpression
+import org.jetbrains.uast.UastFacade
 
 class UnstyledTextComposableDetector : Detector(), SourceCodeScanner {
 
@@ -58,11 +59,11 @@ class UnstyledTextComposableDetector : Detector(), SourceCodeScanner {
     }
 
     private fun UExpression.resolvesToNull(): Boolean = when (this) {
-        is ULiteralExpression -> value == null
+        is ULiteralExpression -> isNull
         is UReferenceExpression -> {
             when (val resolved = resolve()) {
                 is KtProperty -> resolved.initializer?.text == "null"
-                is PsiVariable -> resolved.initializer?.text == "null"
+                is PsiVariable -> UastFacade.getInitializerBody(resolved)?.resolvesToNull() == true
                 else -> false
             }
         }
