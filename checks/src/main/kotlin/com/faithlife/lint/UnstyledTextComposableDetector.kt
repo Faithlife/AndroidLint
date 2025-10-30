@@ -1,0 +1,61 @@
+package com.faithlife.lint
+
+import com.android.tools.lint.detector.api.Category
+import com.android.tools.lint.detector.api.Detector
+import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.detector.api.JavaContext
+import com.android.tools.lint.detector.api.Scope
+import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.intellij.psi.PsiMethod
+import org.jetbrains.uast.UCallExpression
+
+val ISSUE_TEXT_COMPOSABLE_NO_STYLE = Issue.create(
+    id = "UnstyledTextComposable",
+    briefDescription = "Text composable should always have a style.",
+    explanation = """
+        All Text() composables should specify a style parameter to ensure:
+        * The style matches the spec
+        * No values were overlooked
+        * Consistency across different UI
+        * Ease of digging into the style
+
+        While it is preferred to only use a style that already exists, properties can be overridden:
+        Text(
+            text = stringResource(R.string.hello),
+            style = myTextStyle,
+            color = Color.Black,
+        )
+    """.trimIndent(),
+    category = Category.CORRECTNESS,
+    priority = 5,
+    severity = Severity.WARNING,
+    implementation = Implementation(
+        UnstyledTextComposableDetector::class.java,
+        Scope.JAVA_FILE_SCOPE,
+    ),
+)
+
+class UnstyledTextComposableDetector : Detector(), SourceCodeScanner {
+
+    override fun getApplicableMethodNames(): List<String> = listOf("Text")
+
+    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
+        val packageName = method.containingClass?.qualifiedName?.substringBeforeLast(".")
+        if (packageName != "androidx.compose.material3") return
+
+        val hasTextStyle = node.valueArguments.any { arg ->
+            arg.getExpressionType()?.canonicalText == "androidx.compose.ui.text.TextStyle"
+        }
+
+        if (!hasTextStyle) {
+            context.report(
+                ISSUE_TEXT_COMPOSABLE_NO_STYLE,
+                node,
+                context.getLocation(node),
+                "Text() composable is missing a style parameter",
+            )
+        }
+    }
+}
