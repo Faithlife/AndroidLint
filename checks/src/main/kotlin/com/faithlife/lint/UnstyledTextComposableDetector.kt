@@ -86,7 +86,7 @@ class UnstyledTextComposableDetector : Detector(), SourceCodeScanner {
                 style = myTextStyle,
                 color = Color.Black,
             )
-            """.trimIndent(),
+            """,
             category = Category.CORRECTNESS,
             priority = 5,
             severity = Severity.WARNING,
@@ -115,7 +115,7 @@ class UnstyledTextComposableDetector : Detector(), SourceCodeScanner {
                 text = "Hello",
                 style = textStyles.genericText
             )
-            """.trimIndent(),
+            """,
             category = Category.PRODUCTIVITY,
             priority = 5,
             severity = Severity.WARNING,
