@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 2.0.0 - 2025-10-30
+### Added
+- Detect incorrect styling of `Text` composables.
+
+### Changed
+- Breaking: Updated minSdk to 30
 
 ## 1.2.0 - 2022-11-22
 ### Added
