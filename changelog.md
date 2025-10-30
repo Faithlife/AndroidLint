@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## 2.0.0 - 2025-10-30
 ### Added
 - Detect incorrect styling of `Text` composables.
