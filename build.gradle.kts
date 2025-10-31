@@ -21,7 +21,7 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.13.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${lintLibs.versions.kotlin.get()}")
-        classpath("com.vanniktech:gradle-maven-publish-plugin:0.22.0")
+        classpath("com.vanniktech:gradle-maven-publish-plugin:0.34.0")
     }
 }
 
