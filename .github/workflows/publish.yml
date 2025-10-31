@@ -24,13 +24,6 @@ jobs:
               with:
                 java-version: 17
 
-            # Update Unreleased section with the current release note
-            - name: Patch Changelog
-              run: |
-                  ./gradlew patchChangelog --release-note="`cat << EOM
-                  ${{ github.event.release.body }}
-                  EOM`"
-
             # Setup aar signing
             - name: Create binary keyring
               env:
