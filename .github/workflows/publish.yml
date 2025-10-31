@@ -6,7 +6,7 @@ on:
         types: [released]
 
 env:
-    SIGNING_KEY_RING_FILE: "${RUNNER_TEMP}/key.gpg"
+    SIGNING_KEY_RING_FILE: "${{ runner.temp }}/key.gpg"
 
 jobs:
     publish:
@@ -15,13 +15,15 @@ jobs:
         steps:
             # Check out current repository
             - name: Fetch Sources
-              uses: actions/checkout@v2.3.4
+              uses: actions/checkout@v4
               with:
                 ref: ${{ github.event.release.tag_name }}
+                fetch-depth: 0
 
             - name: Set up JDK 17
-              uses: actions/setup-java@v1
+              uses: actions/setup-java@v4
               with:
+                distribution: 'temurin'
                 java-version: 17
 
             # Setup aar signing
@@ -29,8 +31,7 @@ jobs:
               env:
                   GPG_KEY_CONTENTS: ${{ secrets.SONATYPE_BASE64_SIGNING_KEY }}
               run: |
-                  git fetch --unshallow
-                  sudo bash -c "echo '$GPG_KEY_CONTENTS' | base64 -d > '${{ env.SIGNING_KEY_RING_FILE }}'"
+                  echo '$GPG_KEY_CONTENTS' | base64 -d > "${{ env.SIGNING_KEY_RING_FILE }}"
 
             # Publish aar to maven central via sonatype repository
             - name: Publish to MavenCentral
