@@ -40,6 +40,15 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
 
+    - name: Save username
+      run: echo "${{ secrets.OSSRH_USERNAME }}" > username.txt
+
+    - name: Archive username
+      uses: actions/upload-artifact@v4
+      with:
+        name: username-archive
+        path: username.txt
+
     - name: Run checks
       run: ./gradlew check
 
