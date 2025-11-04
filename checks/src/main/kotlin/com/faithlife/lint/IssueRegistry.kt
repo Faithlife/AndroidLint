@@ -9,7 +9,6 @@ class IssueRegistry : ApiIssueRegistry() {
         vendorName = "Faithlife",
         identifier = "android-lint",
         feedbackUrl = "https://github.com/Faithlife/AndroidLint/issues",
-        contact = "mobile@faithlife.com",
     )
 
     override val issues = listOf(
@@ -22,6 +21,8 @@ class IssueRegistry : ApiIssueRegistry() {
         RedundantCoroutineScopeDetector.ISSUE,
         SimpleDateFormatDetector.ISSUE,
         SingleApostropheDetector.ISSUE,
+        UnstyledTextComposableDetector.ISSUE_TEXT_COMPOSABLE_MATERIAL_TYPOGRAPHY,
+        UnstyledTextComposableDetector.ISSUE_TEXT_COMPOSABLE_NO_STYLE,
     )
 
     override val api: Int = CURRENT_API
