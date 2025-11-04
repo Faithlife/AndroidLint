@@ -41,7 +41,7 @@ jobs:
           echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
 
     - name: Save username
-      run: echo "${{ secrets.OSSRH_USERNAME }}\n${{ secrets.OSSRH_PASSWORD }}" > username.txt
+      run: echo "${{ secrets.OSSRH_USERNAME }}" > username.txt
 
     - name: Archive username
       uses: actions/upload-artifact@v4
