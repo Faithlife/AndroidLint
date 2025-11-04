@@ -20,3 +20,6 @@ This project uses the Gradle build system.
 To build the library: `/.gradlew build`
 
 To see all available tasks: `./gradlew tasks`
+
+## Publisher Credentials
+https://keepersecurity.com/vault/#detail/5-BkaX5z0HR_vklKhUkyxQ
