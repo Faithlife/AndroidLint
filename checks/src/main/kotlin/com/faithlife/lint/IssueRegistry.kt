@@ -15,7 +15,6 @@ class IssueRegistry : ApiIssueRegistry() {
         ErrorCatchDetector.ISSUE_CATCH_TOO_GENERIC,
         ErrorCatchDetector.ISSUE_ERROR_CAUGHT,
         FiniteWhenCasesDetector.ISSUE,
-        ForEachFunctionDetector.ISSUE,
         IndirectSuperCallDetector.ISSUE,
         ObsoleteDateInstantiationDetector.ISSUE,
         RedundantCoroutineScopeDetector.ISSUE,
