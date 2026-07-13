@@ -43,20 +43,3 @@ jobs:
                   -Psigning.secretKeyRingFile="${{ env.SIGNING_KEY_RING_FILE }}" \
                   publish
 
-            # Create pull request
-            - name: Create Pull Request
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |
-                  VERSION="${{ github.event.release.tag_name }}"
-                  BRANCH="changelog-update-$VERSION"
-                  git config user.email "action@github.com"
-                  git config user.name "GitHub Action"
-                  git checkout -b $BRANCH
-                  git commit -am "Changelog update - $VERSION"
-                  git push --set-upstream origin $BRANCH
-                  gh pr create \
-                    --title "Changelog update - \`$VERSION\`" \
-                    --body "Current pull request contains patched \`changelog.md\` file for the \`$VERSION\` version." \
-                    --base master \
-                    --head $BRANCH
