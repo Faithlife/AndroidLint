@@ -5,6 +5,9 @@
 ### Changed
 - Breaking: Removed the `ForEachFunctionDetector` lint rule.
 
+### Fixed
+- Prevent the internal checks module from appearing as a published dependency.
+
 ## 2.0.0 - 2025-10-30
 ### Added
 - Detect incorrect styling of `Text` composables.
