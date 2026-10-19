@@ -39,6 +39,5 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":checks"))
     lintPublish(project(":checks"))
 }
