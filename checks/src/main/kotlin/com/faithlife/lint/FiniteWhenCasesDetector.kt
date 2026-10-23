@@ -90,7 +90,7 @@ class FiniteWhenCasesDetector : Detector(), SourceCodeScanner {
 
                 This check should only run in modules that will either be compiled:
                     a. with an app and do not produce artifacts that are used elsewhere.
-                    b. as a stand alone library artifact
+                    b. as a stand-alone library artifact
 
                 Scenario b will run the check in a less-sensitive mode that should
                 avoid encouraging brittle libraries. Only non-public when subject types

@@ -34,7 +34,7 @@ class SimpleDateFormatDetector : Detector(), SourceCodeScanner {
         val ISSUE = Issue.create(
             id = "SimpleDateFormatDetector",
             briefDescription = "Prohibits usage of SimpleDateFormat",
-            explanation = "Prefer Java 8 time apis",
+            explanation = "Prefer Java 8 time APIs",
             category = Category.CORRECTNESS,
             severity = Severity.WARNING,
             implementation = Implementation(
