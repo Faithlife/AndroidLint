@@ -50,7 +50,7 @@ class ErrorCatchDetector : Detector(), SourceCodeScanner {
             Catching errors can further complicate stacktraces and error investigation
             in general. `java.lang.Error` and subtypes should not be caught. They indicate
             a terminal program state that is best served by crashing quickly in order to provide
-            the best view of application state that lead to the `Error` being thrown.
+            the best view of application state that led to the `Error` being thrown.
         """
 
         val ISSUE_CATCH_TOO_GENERIC = Issue.create(
